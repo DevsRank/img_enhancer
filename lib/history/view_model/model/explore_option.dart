@@ -58,30 +58,6 @@ class ExploreOption {
     {
       "img": kExploreImgUtilsImg14Path,
       "title": ""
-    },
-    {
-      "img": kExploreImgUtilsImg15Path,
-      "title": ""
-    },
-    {
-      "img": kExploreImgUtilsImg16Path,
-      "title": ""
-    },
-    {
-      "img": kExploreImgUtilsImg17Path,
-      "title": ""
-    },
-    {
-      "img": kExploreImgUtilsImg18Path,
-      "title": ""
-    },
-    {
-      "img": kExploreImgUtilsImg19Path,
-      "title": ""
-    },
-    {
-      "img": kExploreImgUtilsImg20Path,
-      "title": ""
     }
   ];
 
@@ -130,5 +106,4 @@ class ExploreOption {
       "title": ""
     }
   ];
-
 }

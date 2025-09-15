@@ -4,20 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gallery_saver_plus/gallery_saver.dart';
 import 'package:image_enhancer_app/create_category/view/widget/medium_heading_widget.dart';
+import 'package:image_enhancer_app/create_category/view_model/model/create_category_model.dart';
 import 'package:image_enhancer_app/explore/view/widget/toggle_btn_widget.dart';
 import 'package:image_enhancer_app/history/view/widget/history_grid_view_widget.dart';
 import 'package:image_enhancer_app/history/view_model/bloc/fun_preset_bloc/fun_preset_history_bloc.dart';
 import 'package:image_enhancer_app/history/view_model/bloc/img_utils_bloc/img_utils_history_bloc.dart';
-import 'package:image_enhancer_app/history/view_model/bloc/magic_remover_bloc/img_utils_history_bloc.dart';
+import 'package:image_enhancer_app/history/view_model/bloc/magic_remover_bloc/magic_remover_history_bloc.dart';
 import 'package:image_enhancer_app/splash/view/widget/circular_progress_indicator_widget.dart';
 import 'package:image_enhancer_app/splash/view/widget/text_widget.dart';
 import 'package:image_enhancer_app/utils/constant/color.dart';
 import 'package:image_enhancer_app/utils/constant/font_weight.dart';
 import 'package:image_enhancer_app/utils/constant/image_path.dart';
 import 'package:image_enhancer_app/utils/enum/img_type.dart';
+import 'package:image_enhancer_app/utils/enum/permission_type.dart';
 import 'package:image_enhancer_app/utils/extension/common_extension.dart';
 import 'package:image_enhancer_app/utils/extension/navigator_extension.dart';
+import 'package:image_enhancer_app/utils/extension/snackbar_extension.dart';
 import 'package:image_enhancer_app/utils/extension/widget_extension.dart';
+import 'package:image_enhancer_app/utils/typedef/typedef.dart';
+import 'package:image_enhancer_app/view_history/view/screen/view_history_screen.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:share_plus/share_plus.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -33,77 +39,167 @@ class _HistoryScreenState extends State<HistoryScreen> with AutomaticKeepAliveCl
 
   final ValueNotifier<int> _categoryNotifier = ValueNotifier(0);
 
-  // void _deleteBtnFunction(int index, ValueNotifier<({bool isLoading, double? progress})> btnNotifier) async {
-  //
-  //   context.read<VideoHistoryBloc>().state.dataList[index].printResponse(title: "history index value");
-  //
-  //   btnNotifier.value = (isLoading: true, progress: null);
-  //
-  //   await context.read<VideoHistoryBloc>().removeValue(index: index);
-  //
-  //   btnNotifier.value = (isLoading: false, progress: null);
-  // }
-  //
-  // void _shareBtnFunction(int index, ValueNotifier<({bool isLoading, double? progress})> btnNotifier) async {
-  //   try {
-  //     btnNotifier.value = (isLoading: true, progress: null);
-  //
-  //     final file = File(context.read<VideoHistoryBloc>().state.dataList[index]["video"] ?? "");
-  //
-  //     if(await file.exists()) {
-  //
-  //           await SharePlus.instance.share(ShareParams(
-  //             title: "AI Video Generator",
-  //             files: <XFile>[
-  //               XFile(file.path)
-  //             ]
-  //           ));
-  //
-  //     } else {
-  //       context.showSnackBar(msg: "File not found or lost");
-  //     }
-  //
-  //   } catch (e) {
-  //     e.printResponse(title: "share history video exception");
-  //   } finally {
-  //     btnNotifier.value = (isLoading: false, progress: null);
-  //   }
-  // }
-  //
-  // void _downloadBtnFunction(int index, ValueNotifier<({bool isLoading, double? progress})> btnNotifier) async {
-  //
-  //   try {
-  //     btnNotifier.value = (isLoading: true, progress: null);
-  //
-  //     await 1.second.wait();
-  //
-  //     final file = File(context.read<VideoHistoryBloc>().state.dataList[index]["video"] ?? "");
-  //
-  //     if(await file.exists()) {
-  //
-  //       await Future.wait([
-  //         GallerySaver.saveVideo(file.path, albumName: "AI Video Generator"),
-  //         Future(() async {
-  //           for(int x = 0; x <= 100; x++) {
-  //             btnNotifier.value = (isLoading: true, progress: x / 100);
-  //             await 50.millisecond.wait();
-  //           }
-  //         })
-  //       ]);
-  //       await 100.millisecond.wait();
-  //       btnNotifier.value = (isLoading: true, progress: null);
-  //       await 1.second.wait();
-  //       context.showSnackBar(msg: "Video saved successfully!");
-  //     } else {
-  //       context.showSnackBar(msg: "File not found or lost");
-  //     }
-  //   } catch (e) {
-  //     e.printResponse(title: "download history video exception");
-  //   } finally {
-  //     btnNotifier.value = (isLoading: false, progress: null);
-  //   }
-  // }
-  //
+  void _deleteBtnFunction(int index, ValueNotifier<LoadingBtnRecord> btnNotifier) async {
+
+    btnNotifier.value = (isLoading: true, progress: null);
+
+    late List<Map<String, dynamic>> mapList;
+
+    if(_categoryNotifier.value == 0) {
+      mapList = [
+        ...context.read<ImgUtilsHistoryBloc>().state.dataList,
+        ...context.read<MagicRemoverHistoryBloc>().state.dataList,
+        ...context.read<FunPresetHistoryBloc>().state.dataList
+      ];
+
+    } else if(_categoryNotifier.value == 1) {
+
+      mapList = context.read<ImgUtilsHistoryBloc>().state.dataList;
+
+    } else if(_categoryNotifier.value == 2) {
+
+      mapList = context.read<MagicRemoverHistoryBloc>().state.dataList;
+
+    } else if(_categoryNotifier.value == 3) {
+
+      mapList = context.read<FunPresetHistoryBloc>().state.dataList;
+
+    } else {
+      mapList = [];
+    }
+
+    if(mapList.isNotEmpty) {
+
+      if(index < context.read<ImgUtilsHistoryBloc>().state.dataList.length) {
+
+        await context.read<ImgUtilsHistoryBloc>().removeValue(index: index);
+
+      } else if(index <= (context.read<ImgUtilsHistoryBloc>().state.dataList.length + context.read<MagicRemoverHistoryBloc>().state.dataList.length) -2) {
+
+        await context.read<MagicRemoverHistoryBloc>().removeValue(index: index);
+      } else if(index <= (context.read<ImgUtilsHistoryBloc>().state.dataList.length
+          + context.read<MagicRemoverHistoryBloc>().state.dataList.length + context.read<FunPresetHistoryBloc>().state.dataList.length) - 3) {
+
+        await context.read<FunPresetHistoryBloc>().removeValue(index: index);
+      }
+    }
+
+    btnNotifier.value = (isLoading: false, progress: null);
+  }
+
+  void _shareBtnFunction(int index, ValueNotifier<LoadingBtnRecord> btnNotifier) async {
+    try {
+
+      btnNotifier.value = (isLoading: true, progress: null);
+
+      late List<Map<String, dynamic>> mapList;
+
+      if(_categoryNotifier.value == 0) {
+        mapList = [
+          ...context.read<ImgUtilsHistoryBloc>().state.dataList,
+          ...context.read<MagicRemoverHistoryBloc>().state.dataList,
+          ...context.read<FunPresetHistoryBloc>().state.dataList
+        ];
+      } else if(_categoryNotifier.value == 1) {
+
+        mapList = context.read<ImgUtilsHistoryBloc>().state.dataList;
+
+      } else if(_categoryNotifier.value == 2) {
+
+        mapList = context.read<MagicRemoverHistoryBloc>().state.dataList;
+
+      } else if(_categoryNotifier.value == 3) {
+
+        mapList = context.read<FunPresetHistoryBloc>().state.dataList;
+
+      } else {
+        mapList = [];
+      }
+
+      if(await File(mapList[index]["img"] ?? "").exists()) {
+        final shareResponse = await SharePlus.instance.share(ShareParams(
+            title: "AI Video Generator",
+            files: <XFile>[
+              XFile(mapList[index]["img"] ?? "")
+            ]
+        ));
+
+        if(shareResponse.status == ShareResultStatus.unavailable) {
+          context.showSnackBar(msg: "Share unavailable write now");
+        }
+
+      } else {
+        context.showSnackBar(msg: "File lost or not found");
+      }
+
+
+    } catch (e) {
+      e.printResponse(title: "share explore video exception");
+    } finally {
+      btnNotifier.value = (isLoading: false, progress: null);
+    }
+  }
+
+  void _downloadBtnFunction(int index, ValueNotifier<LoadingBtnRecord> btnNotifier) async {
+
+    try {
+
+      btnNotifier.value = (isLoading: true, progress: null);
+
+      if(await PermissionType.storage.requestStoragePermission()) {
+
+        late List<Map<String, dynamic>> mapList;
+
+        if(_categoryNotifier.value == 0) {
+          mapList = [
+            ...context.read<ImgUtilsHistoryBloc>().state.dataList,
+            ...context.read<MagicRemoverHistoryBloc>().state.dataList,
+            ...context.read<FunPresetHistoryBloc>().state.dataList
+          ];
+        } else if(_categoryNotifier.value == 1) {
+
+          mapList = context.read<ImgUtilsHistoryBloc>().state.dataList;
+
+        } else if(_categoryNotifier.value == 2) {
+
+          mapList = context.read<MagicRemoverHistoryBloc>().state.dataList;
+
+        } else if(_categoryNotifier.value == 3) {
+
+          mapList = context.read<FunPresetHistoryBloc>().state.dataList;
+
+        } else {
+          mapList = [];
+        }
+
+        if(await File(mapList[index]["img"] ?? "").exists()) {
+
+          final result = await ImageGallerySaverPlus.saveImage(
+            await File(mapList[index]["img"] ?? "").readAsBytes(),
+            quality: 100,
+            name: DateTime.now().microsecondsSinceEpoch.toString(),
+          );
+          if (result != null && result["isSuccess"]) {
+            context.showSnackBar(msg: "Saved successfully");
+          } else {
+            context.showSnackBar(msg: "Saved unsuccessfully!");
+          }
+
+        } else {
+          context.showSnackBar(msg: "File lost or not found");
+        }
+
+      } else {
+        context.showSnackBar(msg: "Storage permission is required");
+      }
+
+    } catch (e) {
+      e.printResponse(title: "download explore video exception");
+    } finally {
+      btnNotifier.value = (isLoading: false, progress: null);
+    }
+  }
+
 
   void _initFunction() {
     context.read<ImgUtilsHistoryBloc>().loadInitialHistory();
@@ -127,6 +223,7 @@ class _HistoryScreenState extends State<HistoryScreen> with AutomaticKeepAliveCl
             context.height(16.0).hMargin,
             ToggleBtnWidget(
                 optionList: <Map<String, dynamic>>[
+                  {"img": kAllCategoryIcnPath, "title": "All"},
                   {"img": kImgIcnPath, "title": "Image Utilities"},
                   {"img": kEraseIcnPath, "title": "Magic Remover"},
                   {"img": kFunPresetIcnPath, "title": "Fun Presets"}
@@ -136,127 +233,246 @@ class _HistoryScreenState extends State<HistoryScreen> with AutomaticKeepAliveCl
                 }
             ),
             context.height(16.0).hMargin,
-            IndexedStack(
-              index: 0,
-              children: [
-                BlocBuilder<ImgUtilsHistoryBloc, ImgUtilsHistoryState>(
-                  builder: (context, videoHistoryState) {
-                    if (videoHistoryState.isLoading) {
-                      return const Center(child: CircularProgressIndicatorWidget());
-                    } else if (!videoHistoryState.success || videoHistoryState.dataList.isEmpty || videoHistoryState.msg.isNotEmpty) {
-                      return _buildEmptyScreen(title: "You currently don’t have any\n", gradientTitle: "Image.");
-                    } else {
-                      return NotificationListener<ScrollNotification>(
-                        onNotification: (ScrollNotification notification) {
-                          if (notification.metrics.pixels >= notification.metrics.maxScrollExtent - 106 && !videoHistoryState.isLoading
-                              && videoHistoryState.hasMore) {
-                            context.read<ImgUtilsHistoryBloc>().loadMoreHistory();
-                          }
-                          return false;
-                        },
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              context.height(16.0).hMargin,
-                              MediumHeadingWidget(title: "Your recent history"),
-                              context.height(8.0).hMargin,
-                              HistoryGridViewWidget(
-                                data: videoHistoryState.dataList,
-                                imgType: ImgType.file,
-                                // onDeletePressed: _deleteBtnFunction,
-                                // onSharePressed: _shareBtnFunction,
-                                // onDownloadPressed: _downloadBtnFunction,
-                                // onPressed: (index) => context.push(widget: ViewHistoryItemScreen(dbDataModel: DBDataModel.fromJson(json: videoHistoryState.dataList[index]))),
+            ValueListenableBuilder<int>(
+              valueListenable: _categoryNotifier,
+              builder: (context, value, child) {
+                return IndexedStack(
+                  index: value,
+                  children: [
+                    BlocBuilder<ImgUtilsHistoryBloc, ImgUtilsHistoryState>(
+                      builder: (context, imgUtilsHistoryState) {
+                        return BlocBuilder<MagicRemoverHistoryBloc, MagicRemoverHistoryState>(
+                          builder: (context, magicRemoverHistoryState) {
+                            return BlocBuilder<FunPresetHistoryBloc, FunPresetHistoryState>(
+                              builder: (context, funPresetHistoryState) {
+                                if (imgUtilsHistoryState.isLoading || magicRemoverHistoryState.isLoading || funPresetHistoryState.isLoading) {
+                                  return const Center(child: CircularProgressIndicatorWidget());
+                                } else if (!imgUtilsHistoryState.success || imgUtilsHistoryState.msg.isNotEmpty
+                                    || !magicRemoverHistoryState.success || magicRemoverHistoryState.msg.isNotEmpty
+                                || !funPresetHistoryState.success || funPresetHistoryState.msg.isNotEmpty || (imgUtilsHistoryState.dataList.isEmpty && magicRemoverHistoryState.dataList.isEmpty && funPresetHistoryState.dataList.isEmpty)) {
+                                  return _buildEmptyScreen(title: "You currently don’t have any\n", gradientTitle: "Image.");
+                                } else {
+                                  return NotificationListener<ScrollNotification>(
+                                    onNotification: (ScrollNotification notification) {
+                                      if (notification.metrics.pixels >= notification.metrics.maxScrollExtent - 106 && !imgUtilsHistoryState.isLoading
+                                          && imgUtilsHistoryState.hasMore) {
+                                        context.read<ImgUtilsHistoryBloc>().loadMoreHistory(limit: 5);
+                                      }
+
+                                      if (notification.metrics.pixels >= notification.metrics.maxScrollExtent - 106 && !magicRemoverHistoryState.isLoading
+                                          && magicRemoverHistoryState.hasMore) {
+                                        context.read<MagicRemoverHistoryBloc>().loadMoreHistory(limit: 5);
+                                      }
+
+                                      if (notification.metrics.pixels >= notification.metrics.maxScrollExtent - 106 && !funPresetHistoryState.isLoading
+                                          && funPresetHistoryState.hasMore) {
+                                        context.read<FunPresetHistoryBloc>().loadMoreHistory(limit: 5);
+                                      }
+
+                                      return false;
+                                    },
+                                    child: SingleChildScrollView(
+                                      child: Column(
+                                        children: [
+                                          context.height(16.0).hMargin,
+                                          MediumHeadingWidget(title: "Your recent history"),
+                                          context.height(8.0).hMargin,
+                                          HistoryGridViewWidget(
+                                            data: [
+                                              ...imgUtilsHistoryState.dataList,
+                                              ...magicRemoverHistoryState.dataList,
+                                              ...funPresetHistoryState.dataList,
+                                            ],
+                                            imgType: ImgType.file,
+                                            onDeletePressed: _deleteBtnFunction,
+                                            onSharePressed: _shareBtnFunction,
+                                            onDownloadPressed: _downloadBtnFunction,
+                                            onPressed: (index, tag) => context.push(widget: ViewHistoryScreen(
+                                                tag: tag,
+                                                categoryModel: CreateCategoryModel(
+                                                    img: [
+                                                      ...imgUtilsHistoryState.dataList,
+                                                      ...magicRemoverHistoryState.dataList,
+                                                      ...funPresetHistoryState.dataList,
+                                                    ][index]["img"],
+                                                    provideImg: [
+                                                      ...imgUtilsHistoryState.dataList,
+                                                      ...magicRemoverHistoryState.dataList,
+                                                      ...funPresetHistoryState.dataList,
+                                                    ][index]["provide_img"],
+                                                    prompt: [
+                                                      ...imgUtilsHistoryState.dataList,
+                                                      ...magicRemoverHistoryState.dataList,
+                                                      ...funPresetHistoryState.dataList,
+                                                    ][index]["prompt"],
+                                                    firstOptionIndex: [
+                                                      ...imgUtilsHistoryState.dataList,
+                                                      ...magicRemoverHistoryState.dataList,
+                                                      ...funPresetHistoryState.dataList,
+                                                    ][index]["first_attribute_index"]
+                                                )
+                                            )
+                                            ),
+                                          ),
+                                          if (imgUtilsHistoryState.isLoading)
+                                            Center(child: CircularProgressIndicatorWidget()).padding(padding: context.height(16.0).verticalEdgeInsets),
+                                          context.height(16.0).hMargin,
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
+                    BlocBuilder<ImgUtilsHistoryBloc, ImgUtilsHistoryState>(
+                      builder: (context, imgUtilsHistoryState) {
+                        if (imgUtilsHistoryState.isLoading) {
+                          return const Center(child: CircularProgressIndicatorWidget());
+                        } else if (!imgUtilsHistoryState.success || imgUtilsHistoryState.dataList.isEmpty || imgUtilsHistoryState.msg.isNotEmpty) {
+                          return _buildEmptyScreen(title: "You currently don’t have any\n", gradientTitle: "Image.");
+                        } else {
+                          return NotificationListener<ScrollNotification>(
+                            onNotification: (ScrollNotification notification) {
+                              if (notification.metrics.pixels >= notification.metrics.maxScrollExtent - 106 && !imgUtilsHistoryState.isLoading
+                                  && imgUtilsHistoryState.hasMore) {
+                                context.read<ImgUtilsHistoryBloc>().loadMoreHistory();
+                              }
+                              return false;
+                            },
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  context.height(16.0).hMargin,
+                                  MediumHeadingWidget(title: "Your recent history"),
+                                  context.height(8.0).hMargin,
+                                  HistoryGridViewWidget(
+                                    data: imgUtilsHistoryState.dataList,
+                                    imgType: ImgType.file,
+                                    onDeletePressed: _deleteBtnFunction,
+                                    onSharePressed: _shareBtnFunction,
+                                    onDownloadPressed: _downloadBtnFunction,
+                                    onPressed: (index, tag) => context.push(widget: ViewHistoryScreen(
+                                        tag: tag,
+                                        categoryModel: CreateCategoryModel(
+                                            img: imgUtilsHistoryState.dataList[index]["img"],
+                                            provideImg: imgUtilsHistoryState.dataList[index]["provide_img"],
+                                          prompt: imgUtilsHistoryState.dataList[index]["prompt"],
+                                          firstOptionIndex: imgUtilsHistoryState.dataList[index]["first_attribute_index"]
+                                        )
+                                    )
+                                    ),
+                                  ),
+                                  if (imgUtilsHistoryState.isLoading)
+                                    Center(child: CircularProgressIndicatorWidget()).padding(padding: context.height(16.0).verticalEdgeInsets),
+                                  context.height(16.0).hMargin,
+                                ],
                               ),
-                              if (videoHistoryState.isLoading)
-                                Center(child: CircularProgressIndicatorWidget()).padding(padding: context.height(16.0).verticalEdgeInsets),
-                              context.height(16.0).hMargin,
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                BlocBuilder<MagicRemoverHistoryBloc, MagicRemoverHistoryState>(
-                  builder: (context, videoHistoryState) {
-                    if (videoHistoryState.isLoading) {
-                      return const Center(child: CircularProgressIndicatorWidget());
-                    } else if (!videoHistoryState.success || videoHistoryState.dataList.isEmpty || videoHistoryState.msg.isNotEmpty) {
-                      return _buildEmptyScreen(title: "You currently don’t have any\n", gradientTitle: "Image.");
-                    } else {
-                      return NotificationListener<ScrollNotification>(
-                        onNotification: (ScrollNotification notification) {
-                          if (notification.metrics.pixels >= notification.metrics.maxScrollExtent - 106 && !videoHistoryState.isLoading
-                              && videoHistoryState.hasMore) {
-                            context.read<ImgUtilsHistoryBloc>().loadMoreHistory();
-                          }
-                          return false;
-                        },
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              context.height(16.0).hMargin,
-                              MediumHeadingWidget(title: "Your recent history"),
-                              context.height(8.0).hMargin,
-                              HistoryGridViewWidget(
-                                data: videoHistoryState.dataList,
-                                imgType: ImgType.file,
-                                // onDeletePressed: _deleteBtnFunction,
-                                // onSharePressed: _shareBtnFunction,
-                                // onDownloadPressed: _downloadBtnFunction,
-                                // onPressed: (index) => context.push(widget: ViewHistoryItemScreen(dbDataModel: DBDataModel.fromJson(json: videoHistoryState.dataList[index]))),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    BlocBuilder<MagicRemoverHistoryBloc, MagicRemoverHistoryState>(
+                      builder: (context, magicRemoverHistoryState) {
+                        if (magicRemoverHistoryState.isLoading) {
+                          return const Center(child: CircularProgressIndicatorWidget());
+                        } else if (!magicRemoverHistoryState.success || magicRemoverHistoryState.dataList.isEmpty || magicRemoverHistoryState.msg.isNotEmpty) {
+                          return _buildEmptyScreen(title: "You currently don’t have any\n", gradientTitle: "Image.");
+                        } else {
+                          return NotificationListener<ScrollNotification>(
+                            onNotification: (ScrollNotification notification) {
+                              if (notification.metrics.pixels >= notification.metrics.maxScrollExtent - 106 && !magicRemoverHistoryState.isLoading
+                                  && magicRemoverHistoryState.hasMore) {
+                                context.read<ImgUtilsHistoryBloc>().loadMoreHistory();
+                              }
+                              return false;
+                            },
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  context.height(16.0).hMargin,
+                                  MediumHeadingWidget(title: "Your recent history"),
+                                  context.height(8.0).hMargin,
+                                  HistoryGridViewWidget(
+                                    data: magicRemoverHistoryState.dataList,
+                                    imgType: ImgType.file,
+                                    onDeletePressed: _deleteBtnFunction,
+                                    onSharePressed: _shareBtnFunction,
+                                    onDownloadPressed: _downloadBtnFunction,
+                                    onPressed: (index, tag) => context.push(widget: ViewHistoryScreen(
+                                        tag: tag,
+                                        categoryModel: CreateCategoryModel(
+                                            img: magicRemoverHistoryState.dataList[index]["img"],
+                                            provideImg: magicRemoverHistoryState.dataList[index]["provide_img"],
+                                            prompt: magicRemoverHistoryState.dataList[index]["prompt"],
+                                            firstOptionIndex: magicRemoverHistoryState.dataList[index]["first_attribute_index"]
+                                        )
+                                    )
+                                    ),                              ),
+                                  if (magicRemoverHistoryState.isLoading)
+                                    Center(child: CircularProgressIndicatorWidget()).padding(padding: context.height(16.0).verticalEdgeInsets),
+                                  context.height(16.0).hMargin,
+                                ],
                               ),
-                              if (videoHistoryState.isLoading)
-                                Center(child: CircularProgressIndicatorWidget()).padding(padding: context.height(16.0).verticalEdgeInsets),
-                              context.height(16.0).hMargin,
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                BlocBuilder<FunPresetHistoryBloc, FunPresetHistoryState>(
-                  builder: (context, videoHistoryState) {
-                    if (videoHistoryState.isLoading) {
-                      return const Center(child: CircularProgressIndicatorWidget());
-                    } else if (!videoHistoryState.success || videoHistoryState.dataList.isEmpty || videoHistoryState.msg.isNotEmpty) {
-                      return _buildEmptyScreen(title: "You currently don’t have any\n", gradientTitle: "Image.");
-                    } else {
-                      return NotificationListener<ScrollNotification>(
-                        onNotification: (ScrollNotification notification) {
-                          if (notification.metrics.pixels >= notification.metrics.maxScrollExtent - 106 && !videoHistoryState.isLoading
-                              && videoHistoryState.hasMore) {
-                            context.read<ImgUtilsHistoryBloc>().loadMoreHistory();
-                          }
-                          return false;
-                        },
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              context.height(16.0).hMargin,
-                              MediumHeadingWidget(title: "Your recent history"),
-                              context.height(8.0).hMargin,
-                              HistoryGridViewWidget(
-                                data: videoHistoryState.dataList,
-                                imgType: ImgType.file,
-                                // onDeletePressed: _deleteBtnFunction,
-                                // onSharePressed: _shareBtnFunction,
-                                // onDownloadPressed: _downloadBtnFunction,
-                                // onPressed: (index) => context.push(widget: ViewHistoryItemScreen(dbDataModel: DBDataModel.fromJson(json: videoHistoryState.dataList[index]))),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    BlocBuilder<FunPresetHistoryBloc, FunPresetHistoryState>(
+                      builder: (context, funPresetHistoryState) {
+                        if (funPresetHistoryState.isLoading) {
+                          return const Center(child: CircularProgressIndicatorWidget());
+                        } else if (!funPresetHistoryState.success || funPresetHistoryState.dataList.isEmpty || funPresetHistoryState.msg.isNotEmpty) {
+                          return _buildEmptyScreen(title: "You currently don’t have any\n", gradientTitle: "Image.");
+                        } else {
+                          return NotificationListener<ScrollNotification>(
+                            onNotification: (ScrollNotification notification) {
+                              if (notification.metrics.pixels >= notification.metrics.maxScrollExtent - 106 && !funPresetHistoryState.isLoading
+                                  && funPresetHistoryState.hasMore) {
+                                context.read<ImgUtilsHistoryBloc>().loadMoreHistory();
+                              }
+                              return false;
+                            },
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  context.height(16.0).hMargin,
+                                  MediumHeadingWidget(title: "Your recent history"),
+                                  context.height(8.0).hMargin,
+                                  HistoryGridViewWidget(
+                                    data: funPresetHistoryState.dataList,
+                                    imgType: ImgType.file,
+                                    onDeletePressed: _deleteBtnFunction,
+                                    onSharePressed: _shareBtnFunction,
+                                    onDownloadPressed: _downloadBtnFunction,
+                                    onPressed: (index, tag) => context.push(widget: ViewHistoryScreen(
+                                        tag: tag,
+                                        categoryModel: CreateCategoryModel(
+                                            img: funPresetHistoryState.dataList[index]["img"],
+                                            provideImg: funPresetHistoryState.dataList[index]["provide_img"],
+                                            prompt: funPresetHistoryState.dataList[index]["prompt"],
+                                            firstOptionIndex: funPresetHistoryState.dataList[index]["first_attribute_index"]
+                                        )
+                                    )
+                                    ),                              ),
+                                  if (funPresetHistoryState.isLoading)
+                                    Center(child: CircularProgressIndicatorWidget()).padding(padding: context.height(16.0).verticalEdgeInsets),
+                                  context.height(16.0).hMargin,
+                                ],
                               ),
-                              if (videoHistoryState.isLoading)
-                                Center(child: CircularProgressIndicatorWidget()).padding(padding: context.height(16.0).verticalEdgeInsets),
-                              context.height(16.0).hMargin,
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ],
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                );
+              }
             ),
           ],
         ).padding(padding: context.width(16.0).horizontalEdgeInsets),

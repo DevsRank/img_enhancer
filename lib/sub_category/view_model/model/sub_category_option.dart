@@ -6,37 +6,37 @@ class SubCategoryOption {
   static List<Map<String, dynamic>> img_utils = [
     {
       "img": kImgUtilsSubCategoryAiPhotoEnhancerImgPath,
-      "title": "AI PHOTO ENHANCER",
-      "sub_title": "Make old, blurry photos sharp & vibrant in just seconds.",
+      "title": "Photo Enhancer",
+      "sub_title": "Make old, blurry photos sharp & vibrant.",
       "sub_category_type": SubCategoryType.photo_enhancer
     },
     {
       "img": kImgUtilsSubCategoryMoveCameraImgPath,
-      "title": "MOVE CAMERA",
+      "title": "Move Camera",
       "sub_title": "Move the camera to reveal new aspects of a scene",
       "sub_category_type": SubCategoryType.move_camera
     },
     {
       "img": kImgUtilsSubCategoryRelightImgPath,
-      "title": "RELIGHT",
-      "sub_title": "Relight and brilliantly transform your stunning photos",
+      "title": "Relight",
+      "sub_title": "Relight and brilliantly transform your photos",
       "sub_category_type": SubCategoryType.relight
     },
     {
       "img": kImgUtilsSubCategoryProductPhotoImgPath,
-      "title": "PRODUCT PHOTO",
+      "title": "Product Photo",
       "sub_title": "Turn your photos into professional product photos",
       "sub_category_type": SubCategoryType.product_photo
     },
     {
       "img": kImgUtilsSubCategoryZoomImgPath,
-      "title": "ZOOM",
+      "title": "Zoom",
       "sub_title": "Enlarge without losing image quality",
       "sub_category_type": SubCategoryType.zoom
     },
     {
       "img": kImgUtilsSubCategoryColorizeImgPath,
-      "title": "COLORIZE",
+      "title": "Colorize",
       "sub_title": "Bring vibrant new life to your photos",
       "sub_category_type": SubCategoryType.colorize
     }
@@ -45,19 +45,19 @@ class SubCategoryOption {
   static List<Map<String, dynamic>> magic_remover = [
     {
       "img": kMagicRemoverSubCategoryBkgRemoverImgPath,
-      "title": "BACKGROUND REMOVER",
-      "sub_title": "Remove backgrounds or swap them with new styles in seconds.",
+      "title": "Change Background",
+      "sub_title": "Change backgrounds or swap them with new styles.",
       "sub_category_type": SubCategoryType.bkg_remover
     },
     {
       "img": kMagicRemoverSubCategoryRemoveObjectImgPath,
-      "title": "REMOVE OBJECT",
-      "sub_title": "Remove distracting elements from your photos quickly and smoothly.",
+      "title": "Remove Object",
+      "sub_title": "Remove distracting elements from your photos.",
       "sub_category_type": SubCategoryType.remove_object
     },
     {
       "img": kMagicRemoverSubCategoryRemoveTextImgPath,
-      "title": "REMOVE TEXT",
+      "title": "Remove Text",
       "sub_title": "Easily remove unwanted text effortlessly",
       "sub_category_type": SubCategoryType.remove_text
     }
@@ -66,25 +66,25 @@ class SubCategoryOption {
   static List<Map<String, dynamic>> fun_preset = [
     {
       "img": kFunPresetSubCategoryCartoonifyImgPath,
-      "title": "CARTOONIFY",
+      "title": "Cartoonify",
       "sub_title": "Turn photos into vibrant cartoon art",
       "sub_category_type": SubCategoryType.cartoonify
     },
     {
       "img": kFunPresetSubCategoryMoviePosterImgPath,
-      "title": "MOVIE POSTER",
+      "title": "Movie Poster",
       "sub_title": "Turn your photos into movie posters",
       "sub_category_type": SubCategoryType.movie_poster
     },
     {
       "img": kFunPresetSubCategoryHairCutImgPath,
-      "title": "HAIR CUT",
+      "title": "Hair Cut",
       "sub_title": "Change the haircut of the subject",
       "sub_category_type": SubCategoryType.hair_cut
     },
     {
       "img": kFunPresetSubCategoryTurnIntoAvatarImgPath,
-      "title": "Turn into Avatar",
+      "title": "Turn Into Avatar",
       "sub_title": "Create stunning, AI-powered profile avatars",
       "sub_category_type": SubCategoryType.turn_into_avatar
     },

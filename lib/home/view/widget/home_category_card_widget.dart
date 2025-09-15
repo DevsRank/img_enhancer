@@ -56,7 +56,7 @@ class HomeCategoryCardWidget extends StatelessWidget {
                             bottomRight: context.width(26.0).radius
                         )
                       ),
-                        child: ImgWidget(imgType: ImgType.asset, img: img, borderRadius: context.width(32.0).borderRadius.copyWith(
+                        child: ImgWidget(imgType: ImgType.asset, img: img, width: double.maxFinite, borderRadius: context.width(32.0).borderRadius.copyWith(
                           bottomLeft: context.width(24.0).radius,
                           bottomRight: context.width(24.0).radius
                         ))),
@@ -68,7 +68,7 @@ class HomeCategoryCardWidget extends StatelessWidget {
                             crossAxisAlignment: kStartCrossAxisAlignment,
                             children: [
                               TextWidget(text: title, gradient: kBlueGradient, fontSize: 18.0, fontWeight: k500FontWeight),
-                              TextWidget(text: subTitle, fontSize: 12.0, )
+                              TextWidget(text: subTitle, fontSize: 12.0)
                             ],
                           ),
                         ),
@@ -83,7 +83,7 @@ class HomeCategoryCardWidget extends StatelessWidget {
                             child: InkWell(
                               borderRadius: context.width(100.0).borderRadius,
                               onTap: () {
-
+                                if(onPressed != null) onPressed!();
                               },
                               child: Icon(CupertinoIcons.arrow_up_right, color: kWhiteColor, size: context.width(26.0)).padding(padding: context.width(12.0).allEdgeInsets),
                             ),

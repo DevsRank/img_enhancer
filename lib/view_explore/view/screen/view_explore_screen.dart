@@ -38,7 +38,7 @@ class _ViewExploreScreenState extends State<ViewExploreScreen> {
     try {
       if(context.isActionRunning(loadingState: LoadingState.explore_save)) {
         return;
-      } else if (await PermissionType.STORAGE.requestStoragePermission()) {
+      } else if (await PermissionType.storage.requestStoragePermission()) {
         context.setBtnLoading(loadingState: LoadingState.explore_save);
 
         final byteData = await rootBundle.load(widget.categoryModel.img);
@@ -48,8 +48,8 @@ class _ViewExploreScreenState extends State<ViewExploreScreen> {
 
         if (await tempFile.exists()) {
           final result = await ImageGallerySaverPlus.saveImage(
-              Uint8List.fromList(await tempFile.readAsBytes()),
-              quality: 92,
+              await tempFile.readAsBytes(),
+              quality: 100,
               name: DateTime.now().millisecondsSinceEpoch.toString()
           );
           if(result != null && result["isSuccess"]) context.showSnackBar(msg: "Saved successfully");
@@ -102,40 +102,43 @@ class _ViewExploreScreenState extends State<ViewExploreScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBarWidget.build(context: context, title: "Finalize"),
-      body: Column(
-        crossAxisAlignment: kStartCrossAxisAlignment,
-        children: [
-          context.height(16.0).hMargin,
-          MediumHeadingWidget(title: "Your Deign is Here"),
-          context.height(8.0).hMargin,
-          Container(
-              decoration: BoxDecoration(
-                  border: Border.all(
-                      color: kBlueColor,
-                      width: context.width(1.0)
-                  ),
-                  borderRadius: context.width(14.0).borderRadius
-              ),
-              child: Hero(
-                tag: widget.tag,
-                child: ImgWidget(
-                    imgType: ImgType.asset,
-                    img: widget.categoryModel.img,
-                    width: double.maxFinite,
-                    height: context.width(320.0),
-                    fit: BoxFit.cover,
-                    borderRadius: context.width(12.0).borderRadius
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: kStartCrossAxisAlignment,
+          children: [
+            context.height(16.0).hMargin,
+            MediumHeadingWidget(title: "Your Deign is Here"),
+            context.height(8.0).hMargin,
+            Container(
+                decoration: BoxDecoration(
+                    border: Border.all(
+                        color: kBlueColor,
+                        width: context.width(1.0)
+                    ),
+                    borderRadius: context.width(14.0).borderRadius
                 ),
-              )
-          ),
-          // context.height(16.0).hMargin,
-          // _buildAttributeTextWidget(title: "Room", subTitle: widget.categoryModel.attributeOption1 ?? ""),
-          // context.height(6.0).hMargin,
-          // _buildAttributeTextWidget(title: "Style", subTitle: widget.categoryModel.style ?? ""),
-          // context.height(6.0).hMargin,
-          // _buildAttributeTextWidget(title: "Color", subTitle: widget.categoryModel.color ?? ""),
-        ],
-      ).padding(padding: context.width(16.0).horizontalEdgeInsets),
+                child: Hero(
+                  tag: widget.tag,
+                  child: ImgWidget(
+                      imgType: ImgType.asset,
+                      img: widget.categoryModel.img,
+                      width: double.maxFinite,
+                      height: context.width(320.0),
+                      isInTerActive: true,
+                      borderRadius: context.width(12.0).borderRadius
+                  ),
+                )
+            ),
+            // context.height(16.0).hMargin,
+            // _buildAttributeTextWidget(title: "Room", subTitle: widget.categoryModel.attributeOption1 ?? ""),
+            // context.height(6.0).hMargin,
+            // _buildAttributeTextWidget(title: "Style", subTitle: widget.categoryModel.style ?? ""),
+            // context.height(6.0).hMargin,
+            // _buildAttributeTextWidget(title: "Color", subTitle: widget.categoryModel.color ?? ""),
+            context.width(111.0).hMargin,
+          ],
+        ).padding(padding: context.width(16.0).horizontalEdgeInsets),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Container(
         padding: context

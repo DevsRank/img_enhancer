@@ -225,6 +225,8 @@ class _SettingScreenState extends State<SettingScreen> with AutomaticKeepAliveCl
                 );
               },
             ),
+            context.height(16.0).hMargin,
+
           ],
         ).padding(padding: context.width(16.0).horizontalEdgeInsets),
       )

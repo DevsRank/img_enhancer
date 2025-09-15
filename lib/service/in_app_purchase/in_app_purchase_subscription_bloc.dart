@@ -23,7 +23,7 @@ class InAppPurchaseSubscriptionState extends Equatable {
 
   InAppPurchaseSubscriptionState({
     this.isLoading = false,
-    this.subscriptionStatus = InAppPurchaseSubscriptionStatus.NONE
+    this.subscriptionStatus = InAppPurchaseSubscriptionStatus.none
   });
 
   InAppPurchaseSubscriptionState copyWith({bool? isLoading, InAppPurchaseSubscriptionStatus? subscriptionStatus}) {
@@ -55,10 +55,10 @@ class InAppPurchaseSubscriptionBloc extends Cubit<InAppPurchaseSubscriptionState
 
     if((futureList[0] as bool) && (futureList[1] as ({bool isUsageLeft})).isUsageLeft) {
       "premium subscription activate".printResponse(title: "subscription bloc");
-      emit(state.copyWith(isLoading: false, subscriptionStatus: InAppPurchaseSubscriptionStatus.PREMIUM_SUBSCRIPTION));
+      emit(state.copyWith(isLoading: false, subscriptionStatus: InAppPurchaseSubscriptionStatus.premium_subscription));
     } else if((futureList[0] as bool) && !(futureList[1] as ({bool isUsageLeft})).isUsageLeft) {
       "subscription limit exceeded".printResponse(title: "subscription bloc");
-      emit(state.copyWith(isLoading: false, subscriptionStatus: InAppPurchaseSubscriptionStatus.DIALY_SUBSCRIPTION_USAGE_LIMIT_EXCEEDED));
+      emit(state.copyWith(isLoading: false, subscriptionStatus: InAppPurchaseSubscriptionStatus.daily_subscription_usage_limit_exceeded));
     }
     // else if((futureList[2] as ({bool isFreeTrialLeft})).isFreeTrialLeft) {
     //   "free trial activate".printResponse(title: "subscription bloc");
@@ -66,7 +66,7 @@ class InAppPurchaseSubscriptionBloc extends Cubit<InAppPurchaseSubscriptionState
     // }
     else {
       "no state activate".printResponse(title: "subscription bloc");
-      emit(state.copyWith(isLoading: false, subscriptionStatus: InAppPurchaseSubscriptionStatus.NONE));
+      emit(state.copyWith(isLoading: false, subscriptionStatus: InAppPurchaseSubscriptionStatus.none));
     }
 
   }
@@ -80,28 +80,34 @@ class InAppPurchaseSubscriptionBloc extends Cubit<InAppPurchaseSubscriptionState
   }
 
   Future<bool> _validatePurchase() async {
-
     String? receipt;
 
-    if (Platform.isIOS) {
-      final addition = InAppPurchaseStoreKitPlatformAddition();
-      final purchaseVerification = await addition.refreshPurchaseVerificationData();
-      receipt = purchaseVerification?.localVerificationData ?? "";
+    try {
 
-      if (receipt.isEmpty) {
-        log("❌ Could not retrieve app store receipt");
-      }
-    } else {
-      // On Android, use purchaseDetails.verificationData.serverVerificationData
+      if (Platform.isIOS) {
+            final addition = InAppPurchaseStoreKitPlatformAddition();
+            final purchaseVerification = await addition.refreshPurchaseVerificationData();
+            receipt = purchaseVerification?.localVerificationData ?? "";
+
+            if (receipt.isEmpty) {
+              log("❌ Could not retrieve app store receipt");
+            }
+          } else {
+            // On Android, use purchaseDetails.verificationData.serverVerificationData
+            receipt = "";
+          }
+    } catch (e) {
+      log(e.toString());
       receipt = "";
     }
 
     if(receipt.isNotEmpty) {
 
+      try {
       log('Starting receipt validation');
       const String sandboxUrl = 'https://sandbox.itunes.apple.com/verifyReceipt';
       const String productionUrl = 'https://buy.itunes.apple.com/verifyReceipt';
-      const String sharedSecret = 'ddb13bb48f274aee9d6f879eea8703a6';
+      const String sharedSecret = '79b1b20f3757407f91e8c54e196d5083';
 
       final Map<String, dynamic> receiptBody = {
         'receipt-data': receipt,
@@ -109,7 +115,6 @@ class InAppPurchaseSubscriptionBloc extends Cubit<InAppPurchaseSubscriptionState
         'password': sharedSecret,
       };
 
-      try {
         dio_instance.Response response = await Dio().post(
           productionUrl,
           data: jsonEncode(receiptBody),
@@ -194,13 +199,13 @@ class InAppPurchaseSubscriptionBloc extends Cubit<InAppPurchaseSubscriptionState
     await SharedPrefService.updateFreeTrialLimit();
     final pref = await SharedPrefService.checkFreeTrial();
     "free trial ${pref.isFreeTrialLeft ? "activate" : "deactivate"}".printResponse(title: "subscription bloc");
-    emit(state.copyWith(isLoading: false, subscriptionStatus: pref.isFreeTrialLeft ? InAppPurchaseSubscriptionStatus.FREETRIAL : InAppPurchaseSubscriptionStatus.NONE));
+    emit(state.copyWith(isLoading: false, subscriptionStatus: pref.isFreeTrialLeft ? InAppPurchaseSubscriptionStatus.freetrial : InAppPurchaseSubscriptionStatus.none));
   }
 
   Future<void> handlePremiumSubscription() async {
     emit(state.copyWith(isLoading: true));
     if(materialAppKey.currentContext != null) {
-      emit(state.copyWith(isLoading: false, subscriptionStatus: InAppPurchaseSubscriptionStatus.PREMIUM_SUBSCRIPTION));
+      emit(state.copyWith(isLoading: false, subscriptionStatus: InAppPurchaseSubscriptionStatus.premium_subscription));
       Future.delayed(200.millisecond, () {
         materialAppKey.currentContext?.pop();
       });
@@ -236,7 +241,7 @@ class InAppPurchaseSubscriptionBloc extends Cubit<InAppPurchaseSubscriptionState
       if (newRemaining.isNegative) {
         timer.cancel();
         "subscription has been expired".printResponse(title: "subscription bloc");
-        emit(state.copyWith(subscriptionStatus: InAppPurchaseSubscriptionStatus.NONE));
+        emit(state.copyWith(subscriptionStatus: InAppPurchaseSubscriptionStatus.none));
       }
     });
   }
@@ -245,7 +250,7 @@ class InAppPurchaseSubscriptionBloc extends Cubit<InAppPurchaseSubscriptionState
     await SharedPrefService.updateDailySubscriptionUsageLimit();
     final pref = await SharedPrefService.checkDailySubscriptionUsageLimit();
     if(!pref.isUsageLeft) {
-      emit(state.copyWith(subscriptionStatus: InAppPurchaseSubscriptionStatus.DIALY_SUBSCRIPTION_USAGE_LIMIT_EXCEEDED));
+      emit(state.copyWith(subscriptionStatus: InAppPurchaseSubscriptionStatus.daily_subscription_usage_limit_exceeded));
     }
   }
 

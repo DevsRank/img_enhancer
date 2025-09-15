@@ -64,12 +64,12 @@ class FunPresetHistoryState extends Equatable {
 class FunPresetHistoryBloc extends Cubit<FunPresetHistoryState> {
   FunPresetHistoryBloc() : super(FunPresetHistoryState());
 
-  Future<void> loadInitialHistory() async {
+  Future<void> loadInitialHistory({int limit = 10}) async {
     try {
-      emit(state.copyWith(isLoading: true, page: 0));
+      emit(state.copyWith(isLoading: true, page: 0, limit: limit));
 
       final data = await SqflDB.instance.getTableData(
-        tableName: TableName.img_utils,
+        tableName: TableName.fun_preset,
         limit: state.limit,
         offset: 0,
       );
@@ -90,19 +90,19 @@ class FunPresetHistoryBloc extends Cubit<FunPresetHistoryState> {
     }
   }
 
-  Future<void> loadMoreHistory() async {
+  Future<void> loadMoreHistory({int limit = 10}) async {
     try {
 
       if (state.isLoading || !state.hasMore) return;
 
-      emit(state.copyWith(isLoading: true));
+      emit(state.copyWith(isLoading: true, limit: limit));
 
       final nextPage = state.page + 1;
       final offset = nextPage * state.limit;
 
       final future = await Future.wait([
         SqflDB.instance.getTableData(
-          tableName: TableName.img_utils,
+          tableName: TableName.fun_preset,
           limit: state.limit,
           offset: offset,
         ),
@@ -133,8 +133,9 @@ class FunPresetHistoryBloc extends Cubit<FunPresetHistoryState> {
       final historyList = List<Map<String, dynamic>>.from(state.dataList);
 
       final future = await Future.wait([
-        SqflDB.instance.deleteData(tableName: TableName.img_utils, id: historyList[index]["id"] ?? ""),
-        if(await File(historyList[index]["video"] ?? "").exists()) File(historyList[index]["video"] ?? "").delete(recursive: true),
+        SqflDB.instance.deleteData(tableName: TableName.fun_preset, id: historyList[index]["id"] ?? ""),
+        if(await File(historyList[index]["img"] ?? "").exists()) File(historyList[index]["img"] ?? "").delete(recursive: true),
+        if(await File(historyList[index]["provide_img"] ?? "").exists()) File(historyList[index]["provide_img"] ?? "").delete(recursive: true),
         3.second.wait()
       ]);
 

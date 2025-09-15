@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_enhancer_app/create_category/view/widget/icn_btn_widget.dart';
 import 'package:image_enhancer_app/create_category/view/widget/loading_btn_widget.dart';
+import 'package:image_enhancer_app/create_category/view/widget/loading_view_widget.dart';
 import 'package:image_enhancer_app/dashboard/view/widget/pro_btn_widget.dart';
 import 'package:image_enhancer_app/premium/view/widget/text_btn_widget.dart';
 import 'package:image_enhancer_app/premium/view_model/bloc/in_app_purchase/in_app_purchase_bloc.dart';
@@ -31,7 +32,7 @@ class PremiumScreen extends StatefulWidget {
 
 class _PremiumScreenState extends State<PremiumScreen> {
   final ValueNotifier<int> _imgNotifier = ValueNotifier<int>(0);
-  final ValueNotifier<int> _packageNotifier = ValueNotifier<int>(0);
+  final ValueNotifier<int> _packageNotifier = ValueNotifier<int>(-1);
   // final ValueNotifier<bool> _freeTrialBtnNotifier = ValueNotifier<bool>(false);
 
   void _continueBtnFunction() async {
@@ -47,7 +48,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   void _privacyPolicyBtnFunction() {
-    _urlLauncherFunction(url: "https://www.termsfeed.com/live/9f8b3c80-3c07-4628-918c-dfd8c5ce5be6");
+    _urlLauncherFunction(url: "https://www.termsfeed.com/live/7aefa46c-0265-4369-8980-4fa9b7a90e93");
   }
 
   void _urlLauncherFunction({required String url}) async {
@@ -145,7 +146,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       mainAxisAlignment: kCenterMainAxisAlignment,
                       children: [
                         TextWidget(
-                          text: "Home Aura",
+                          text: "PixeLift",
                           fontSize: 19.0,
                           fontWeight: k600FontWeight,
                         ),
@@ -221,17 +222,20 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                   String planType = 'WEEKLY ACCESS';
                                   String discount = '';
                                   if (product.id.toLowerCase().contains(
-                                    'aihomeweekly',
+                                    'pixeliftweekly',
                                   )) {
                                     planType = 'WEEKLY ACCESS';
                                     discount =
                                         '${product.price.replaceAll(RegExp(r'[\d.,]'), '').trim()}${(double.parse(product.price.replaceAll(RegExp(r'[^\d.]'), '')) / 4).toStringAsFixed(2)}';
                                     bannerText = '25% save';
                                   } else if (product.id.toLowerCase().contains(
-                                    'aihomeyearly',
+                                    'pixeliftyearly',
                                   )) {
-                                    if (_packageNotifier.value == -1)
-                                      _packageNotifier.value = index;
+                                    if (_packageNotifier.value == -1) {
+                                      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                                        _packageNotifier.value = index;
+                                      });
+                                    }
                                     planType = 'YEARLY ACCESS';
                                     discount =
                                         '${product.price.replaceAll(RegExp(r'[\d.,]'), '').trim()}${(double.parse(product.price.replaceAll(RegExp(r'[^\d.]'), '')) / 48).toStringAsFixed(2)}';
@@ -300,20 +304,20 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                                   maxLines: 1,
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
-                                                subtitle: product.id !=
-                                                        "com.devsrank.aihomeyearly.app"
-                                                        ? null
-                                                        : Builder(
-                                                          builder: (context) {
-                                                            final result = extractCurrencyAndAmount(product.price);
-                                                            return TextWidget(
-                                                                text: "Just ${result["currency"]}${result["amount"]} Per Year",
-                                                                fontSize: 12.0,
-                                                                maxLines: 1,
-                                                                overflow: TextOverflow.ellipsis
-                                                            );
-                                                          }
-                                                        ),
+                                                // subtitle: product.id !=
+                                                //         "com.devsrank.pixeliftyearly.app"
+                                                //         ? null
+                                                //         : Builder(
+                                                //           builder: (context) {
+                                                //             final result = extractCurrencyAndAmount(product.price);
+                                                //             return TextWidget(
+                                                //                 text: "Just ${result["currency"]}${result["amount"]} Per Year",
+                                                //                 fontSize: 12.0,
+                                                //                 maxLines: 1,
+                                                //                 overflow: TextOverflow.ellipsis
+                                                //             );
+                                                //           }
+                                                //         ),
                                                 trailing: Column(
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
@@ -323,8 +327,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                                           double weeklyPrice = (double.tryParse(cleanedPrice) ?? .0) / 52;
                                                           final result = extractCurrencyAndAmount(product.price);
                                                           return TextWidget(
-                                                              text: product.id != "com.devsrank.aihomeyearly.app" ?
-                                                                  result["currency"].toString()+cleanedPrice : result["currency"].toString()+weeklyPrice.toStringAsFixed(2),
+                                                              // text: product.id != "com.devsrank.pixeliftyearly.app" ?
+                                                              //     result["currency"].toString()+cleanedPrice : result["currency"].toString()+weeklyPrice.toStringAsFixed(2),
+                                                            text: "${result["currency"]}${result["amount"]}",
                                                               fontSize: 16.0,
                                                               maxLines: 1,
                                                               fontWeight: kBoldFontWeight,
@@ -332,11 +337,11 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                                           );
                                                         }
                                                     ),
-                                                    context.width(2.0).hMargin,
+                                                    // context.width(2.0).hMargin,
+                                                    2.0.hMargin,
                                                     TextWidget(
-                                                      text: product.id !=
-                                                          "com.devsrank.aihomeyearly.app" ? "Per Week" : "Per Week",
-                                                      fontSize: 12.0,
+                                                      text: product.id != "com.devsrank.pixeliftyearly.app" ? "Per Week" : "Per Year",
+                                                        fontSize: 12.0,
                                                       maxLines: 1,
                                                       overflow:
                                                           TextOverflow.ellipsis
@@ -347,7 +352,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                             )
                                           )
                                         ),
-                                        if(product.id != "com.devsrank.aihomeweekly.app") Positioned(
+                                        if(product.id != "com.devsrank.pixeliftweekly.app") Positioned(
                                           top: -10.0,
                                           right: 26.0,
                                           child: AnimatedContainer(
@@ -456,24 +461,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
             ),
             BlocBuilder<InAppPurchaseBloc, InAppPurchaseState>(
                 builder: (context, inAppPurchaseState) {
-              return inAppPurchaseState.isPurchasing ? BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 7.0, sigmaY: 7.0),
-                child: Stack(
-                  children: [
-                    // Blocks interactions
-                    ModalBarrier(
-                      dismissible: false,
-                      color: kTransparentColor // Optional dim background
-                    ),
-                    // Centered loader
-                    Center(
-                      child: CupertinoActivityIndicator(
-                        color: kWhiteColor,
-                        radius: context.width(22.0)
-                      )
-                    )
-                  ]
-                )
+              return inAppPurchaseState.isPurchasing ? LoadingViewWidget(
+                title: "Purchasing",
               ) : SizedBox.shrink();
             })
           ]

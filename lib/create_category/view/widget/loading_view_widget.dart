@@ -60,7 +60,7 @@ class LoadingViewWidget extends StatelessWidget {
                 ),
                 context.height(16.0).hMargin,
                 _AnimatedDotsText(
-                  baseText: title ?? "Generating Video",
+                  baseText: title ?? "Generating Image",
                   fontWeight: kBoldFontWeight,
                   fontSize: 16.0,
                   color: kWhiteColor,

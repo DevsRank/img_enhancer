@@ -1,5 +1,7 @@
 
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_enhancer_app/dashboard/view/widget/bottom_nav_bar_widget.dart';
@@ -8,9 +10,14 @@ import 'package:image_enhancer_app/dashboard/view_model/bloc/bottom_nav_bar/bott
 import 'package:image_enhancer_app/explore/view/screen/explore_screen.dart';
 import 'package:image_enhancer_app/history/view/screen/history_screen.dart';
 import 'package:image_enhancer_app/home/view/screen/home_screen.dart';
+import 'package:image_enhancer_app/premium/view/screen/premium_screen.dart';
+import 'package:image_enhancer_app/service/in_app_purchase/in_app_purchase_subscription_bloc.dart';
 import 'package:image_enhancer_app/setting/view/screen/setting_screen.dart';
 import 'package:image_enhancer_app/utils/constant/image_path.dart';
+import 'package:image_enhancer_app/utils/enum/in_app_purchase_subscription_status.dart';
 import 'package:image_enhancer_app/utils/extension/common_extension.dart';
+import 'package:image_enhancer_app/utils/extension/navigator_extension.dart';
+import 'package:image_enhancer_app/utils/extension/snackbar_extension.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -24,8 +31,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final PageController _pageController = PageController();
   final ValueNotifier<bool> _isChangeNotifier = ValueNotifier(false);
 
+
   void _initFunction() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      if(!Platform.isAndroid && context.read<InAppPurchaseSubscriptionBloc>().state.subscriptionStatus != InAppPurchaseSubscriptionStatus.premium_subscription
+          && context.read<InAppPurchaseSubscriptionBloc>().state.subscriptionStatus != InAppPurchaseSubscriptionStatus.daily_subscription_usage_limit_exceeded) {
+        context.push(widget: PremiumScreen());
+      }
+      for(final element in [kHomeIcnPath, kExploreIcnPath, kHistoryIcnPath, kSettingIcnPath]) {
+        await precacheImage(AssetImage(element), context);
+      }
 
     });
   }
@@ -35,7 +50,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // TODO: implement initState
     super.initState();
     _initFunction();
-
   }
 
   @override

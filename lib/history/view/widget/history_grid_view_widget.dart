@@ -13,6 +13,7 @@ class HistoryGridViewWidget extends StatefulWidget {
   final List<Map<String, dynamic>> data;
   final ImgType imgType;
   final Function(int index, dynamic tag)? onPressed;
+  final Function(int index, ValueNotifier<({bool isLoading, double? progress})> valueNotifier)? onDeletePressed;
   final Function(int index, ValueNotifier<({bool isLoading, double? progress})> valueNotifier)? onSharePressed;
   final Function(int index, ValueNotifier<({bool isLoading, double? progress})> valueNotifier)? onDownloadPressed;
 
@@ -21,6 +22,7 @@ class HistoryGridViewWidget extends StatefulWidget {
     required this.data,
     required this.imgType,
     this.onPressed,
+    this.onDeletePressed,
     this.onSharePressed,
     this.onDownloadPressed
   });
@@ -42,8 +44,8 @@ class _HistoryGridViewWidgetState extends State<HistoryGridViewWidget> {
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2, // Adjust as needed
-            mainAxisSpacing: context.width(8.0),
-            crossAxisSpacing: context.width(8.0),
+            mainAxisSpacing: context.width(16.0),
+            crossAxisSpacing: context.width(16.0),
             childAspectRatio: 1
         ),
         itemBuilder: (context, index) {
@@ -139,16 +141,20 @@ class _HistoryGridViewWidgetState extends State<HistoryGridViewWidget> {
                                               onSelected: (int value) async {
                                                 switch (value) {
                                                   case 0:
-                                                    if(widget.onSharePressed != null) widget.onSharePressed!(index, btnNotifier);
+                                                    if(widget.onDeletePressed != null) widget.onDeletePressed!(index, btnNotifier);
                                                     break;
                                                     case 1:
+                                                      if(widget.onSharePressed != null) widget.onSharePressed!(index, btnNotifier);
+                                                      break;
+                                                      case 2:
                                                       if(widget.onDownloadPressed != null) widget.onDownloadPressed!(index, btnNotifier);
                                                       break;
                                                 }
                                               },
                                               itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
-                                                PopUpMenuItemWidget.build(context: context, value: 0, title: "Share", icn: Icons.share_outlined, displayDivider: true),
-                                                PopUpMenuItemWidget.build(context: context, value: 1, title: "Download", icn: Icons.save_alt_outlined)
+                                                PopUpMenuItemWidget.build(context: context, value: 0, title: "Delete", icn: Icons.delete_forever_outlined, color: Colors.red, displayDivider: true),
+                                                PopUpMenuItemWidget.build(context: context, value: 1, title: "Share", icn: Icons.share_outlined, displayDivider: true),
+                                                PopUpMenuItemWidget.build(context: context, value: 2, title: "Download", icn: Icons.save_alt_outlined)
                                               ],
                                             );
                                           }

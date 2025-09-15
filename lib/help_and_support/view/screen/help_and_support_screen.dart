@@ -3,6 +3,7 @@ import 'package:image_enhancer_app/create_category/view/widget/app_bar_widget.da
 import 'package:image_enhancer_app/create_category/view/widget/medium_heading_widget.dart';
 import 'package:image_enhancer_app/splash/view/widget/text_widget.dart';
 import 'package:image_enhancer_app/utils/constant/color.dart';
+import 'package:image_enhancer_app/utils/constant/padding.dart';
 import 'package:image_enhancer_app/utils/extension/common_extension.dart';
 import 'package:image_enhancer_app/utils/extension/snackbar_extension.dart';
 import 'package:image_enhancer_app/utils/extension/widget_extension.dart';
@@ -95,13 +96,13 @@ class _HelpAndSupportScreenState extends State<HelpAndSupportScreen> {
                         SizedBox(height: context.height(16.0)),
                     itemBuilder: (context, index) {
                       return MaterialButton(
-                          elevation: .0,
-                          color: kGrey2Color,
-                          padding: EdgeInsets.zero,
+                          elevation: 1.0,
+                          color: kBlack2Color,
+                          padding: kZeroEdgeInsets,
                           highlightElevation: 1.0,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(context.width(100.0)),
-                              side: BorderSide(color: Colors.grey, width: .1)
+                              side: BorderSide(color: Colors.grey, width: .2)
                           ),
                           onPressed: [
                             _helpAndSupportBtnFunction,

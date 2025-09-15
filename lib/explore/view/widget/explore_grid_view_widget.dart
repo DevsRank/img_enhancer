@@ -42,13 +42,14 @@ class _ExploreGridViewWidgetState extends State<ExploreGridViewWidget> {
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2, // Adjust as needed
-            mainAxisSpacing: context.width(8.0),
-            crossAxisSpacing: context.width(8.0),
+            mainAxisSpacing: context.width(16.0),
+            crossAxisSpacing: context.width(16.0),
             childAspectRatio: 1
         ),
         itemBuilder: (context, index) {
           final ValueNotifier<double> scaleNotifier = ValueNotifier(1.0);
-          final ValueNotifier<LoadingBtnRecord> btnNotifier = ValueNotifier((isLoading: false, progress: null));
+          final ValueNotifier<LoadingBtnRecord> shareBtnNotifier = ValueNotifier((isLoading: false, progress: null));
+          final ValueNotifier<LoadingBtnRecord> downloadBtnNotifier = ValueNotifier((isLoading: false, progress: null));
           final tag = DateTime.now().microsecondsSinceEpoch;
           return ValueListenableBuilder<double>(
               valueListenable: scaleNotifier,
@@ -123,33 +124,40 @@ class _ExploreGridViewWidgetState extends State<ExploreGridViewWidget> {
                                           color: kBlackColor.withOpacity(.2),
                                         ),
                                         child: ValueListenableBuilder(
-                                          valueListenable: btnNotifier,
-                                          builder: (context, value, child) {
-                                            return value.isLoading ? CircularProgressIndicatorWidget(
-                                              value: value.progress
-                                            ) : PopupMenuButton<int>(
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius: context.width(8.0).borderRadius
-                                              ),
-                                              color: Colors.grey[850],
-                                              iconSize: context.width(22.0),
-                                              padding: kZeroEdgeInsets,
-                                              icon: Icon(Icons.more_vert, color: kWhiteColor, size: context.width(22.0)),
-                                              tooltip: "More",
-                                              onSelected: (int value) async {
-                                                switch (value) {
-                                                  case 0:
-                                                    if(widget.onSharePressed != null) widget.onSharePressed!(index, btnNotifier);
-                                                    break;
-                                                    case 1:
-                                                      if(widget.onDownloadPressed != null) widget.onDownloadPressed!(index, btnNotifier);
-                                                      break;
-                                                }
-                                              },
-                                              itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
-                                                PopUpMenuItemWidget.build(context: context, value: 0, title: "Share", icn: Icons.share_outlined, displayDivider: true),
-                                                PopUpMenuItemWidget.build(context: context, value: 1, title: "Download", icn: Icons.save_alt_outlined)
-                                              ],
+                                          valueListenable: shareBtnNotifier,
+                                          builder: (context, shareValue, child) {
+                                            return shareBtnNotifier.value.isLoading ? CircularProgressIndicatorWidget(
+                                              value: shareValue.progress
+                                            ) : ValueListenableBuilder(
+                                              valueListenable: downloadBtnNotifier,
+                                              builder: (context, downloadValue, child) {
+                                                return downloadValue.isLoading ? CircularProgressIndicatorWidget(
+                                                  value: downloadValue.progress
+                                                ) : PopupMenuButton<int>(
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius: context.width(8.0).borderRadius
+                                                  ),
+                                                  color: Colors.grey[850],
+                                                  iconSize: context.width(22.0),
+                                                  padding: kZeroEdgeInsets,
+                                                  icon: Icon(Icons.more_vert, color: kWhiteColor, size: context.width(22.0)),
+                                                  tooltip: "More",
+                                                  onSelected: (int value) async {
+                                                    switch (value) {
+                                                      case 0:
+                                                        if(widget.onSharePressed != null) widget.onSharePressed!(index, shareBtnNotifier);
+                                                        break;
+                                                        case 1:
+                                                          if(widget.onDownloadPressed != null) widget.onDownloadPressed!(index, downloadBtnNotifier);
+                                                          break;
+                                                    }
+                                                  },
+                                                  itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+                                                    PopUpMenuItemWidget.build(context: context, value: 0, title: "Share", icn: Icons.share_outlined, displayDivider: true),
+                                                    PopUpMenuItemWidget.build(context: context, value: 1, title: "Download", icn: Icons.save_alt_outlined)
+                                                  ],
+                                                );
+                                              }
                                             );
                                           }
                                         ),

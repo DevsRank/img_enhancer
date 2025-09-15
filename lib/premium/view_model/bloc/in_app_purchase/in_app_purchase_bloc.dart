@@ -195,7 +195,7 @@ class InAppPurchaseBloc extends Cubit<InAppPurchaseState> {
 
     // Ensure the user's premium status is updated
     if (hasValidPurchase) {
-      await _handlePremium(product: product);
+      await _handlePremium();
     }  else {
       await _handleFree();
     }
@@ -247,8 +247,8 @@ class InAppPurchaseBloc extends Cubit<InAppPurchaseState> {
 
   }
 
-  Future<void> _handlePremium({PurchaseDetails? product}) async {
-
+  Future<void> _handlePremium() async {
+    materialAppKey.currentContext?.read<InAppPurchaseSubscriptionBloc>().handlePremiumSubscription();
     log('handlePremium');
   }
 

@@ -3,14 +3,14 @@
     <!-- dio -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Android 12 and lower -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <!-- Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
 
     <application
-        android:label="Image Enhancer"
+        android:label="PixeLift"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -27,8 +27,8 @@ const kSettingIcnPath = "assets/dashboard/bottom_nav_bar/setting_icn.png";
 
 // home
 const kHomeCategoryImgUtilityImgPath = "assets/home/img_utils_img.webp";
-const kHomeCategoryMagicRemoverImgPath = "assets/home/fun_preset_img.webp";
-const kHomeCategoryFunPresetImgPath = "assets/home/magic_remover_img.webp";
+const kHomeCategoryMagicRemoverImgPath = "assets/home/magic_remover_img.webp";
+const kHomeCategoryFunPresetImgPath = "assets/home/fun_preset_img.webp";
 
 // setting
 const kPremiumBannerBkgImg = "assets/setting/premium_banner_bkg_img.webp";
@@ -36,8 +36,7 @@ const kPremiumBannerBkgImg = "assets/setting/premium_banner_bkg_img.webp";
 // create_category
 const kMagicStickIcnPath = "assets/create_category/magic_stick_icn.png";
 
-// create_category/bkg_remover
-const kSurpriseMeImgPath = "assets/create_category/bkg_remover/surprise_me_img.webp";
+// create_category/turn_into_avatar
 const kTurnIntoAvatarAnimeImgPath = "assets/create_category/turn_into_avatar/anime_img.webp";
 const kTurnIntoAvatarSketchImgPath = "assets/create_category/turn_into_avatar/sketch_img.webp";
 const kTurnIntoAvatarCartoonImgPath = "assets/create_category/turn_into_avatar/cartoon_img.webp";
@@ -80,10 +79,10 @@ const kExploreImgUtilsImg4Path = "assets/explore/img_utils/img_4.webp";
 const kExploreImgUtilsImg5Path = "assets/explore/img_utils/img_5.webp";
 const kExploreImgUtilsImg6Path = "assets/explore/img_utils/img_6.webp";
 const kExploreImgUtilsImg7Path = "assets/explore/img_utils/img_7.webp";
-const kExploreImgUtilsImg8Path = "assets/explore/img_utils/img_7.webp";
-const kExploreImgUtilsImg9Path = "assets/explore/img_utils/img_8.webp";
-const kExploreImgUtilsImg10Path = "assets/explore/img_utils/img_9.webp";
-const kExploreImgUtilsImg11Path = "assets/explore/img_utils/img_10.webp";
+const kExploreImgUtilsImg8Path = "assets/explore/img_utils/img_8.webp";
+const kExploreImgUtilsImg9Path = "assets/explore/img_utils/img_9.webp";
+const kExploreImgUtilsImg10Path = "assets/explore/img_utils/img_10.webp";
+const kExploreImgUtilsImg11Path = "assets/explore/img_utils/img_11.webp";
 const kExploreImgUtilsImg12Path = "assets/explore/img_utils/img_12.webp";
 const kExploreImgUtilsImg13Path = "assets/explore/img_utils/img_13.webp";
 const kExploreImgUtilsImg14Path = "assets/explore/img_utils/img_14.webp";

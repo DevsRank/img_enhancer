@@ -8,13 +8,14 @@ import 'package:image_enhancer_app/create_category/view_model/bloc/loading_view/
 import 'package:image_enhancer_app/dashboard/view_model/bloc/bottom_nav_bar/bottom_nav_bar_bloc.dart';
 import 'package:image_enhancer_app/history/view_model/bloc/fun_preset_bloc/fun_preset_history_bloc.dart';
 import 'package:image_enhancer_app/history/view_model/bloc/img_utils_bloc/img_utils_history_bloc.dart';
-import 'package:image_enhancer_app/history/view_model/bloc/magic_remover_bloc/img_utils_history_bloc.dart';
+import 'package:image_enhancer_app/history/view_model/bloc/magic_remover_bloc/magic_remover_history_bloc.dart';
 import 'package:image_enhancer_app/premium/view_model/bloc/in_app_purchase/in_app_purchase_bloc.dart';
 import 'package:image_enhancer_app/service/in_app_purchase/in_app_purchase_subscription_bloc.dart';
 import 'package:image_enhancer_app/splash/view/screen/splash_screen.dart';
 import 'package:image_enhancer_app/utils/constant/color.dart';
 import 'package:image_enhancer_app/utils/enum/loading_type.dart';
 import 'package:image_enhancer_app/utils/extension/common_extension.dart';
+import 'package:image_enhancer_app/utils/extension/snackbar_extension.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,48 +79,51 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        navigatorKey: _materialAppKey,
-        navigatorObservers: [AppRouteObserver()],
-        title: 'PixeLift',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            scaffoldBackgroundColor: kBlack2Color,
-            textTheme: TextTheme(
-              displayLarge: TextStyle(color: kWhiteColor),
-              displayMedium: TextStyle(color: kWhiteColor),
-              displaySmall: TextStyle(color: kWhiteColor),
-              headlineLarge: TextStyle(color: kWhiteColor),
-              headlineMedium: TextStyle(color: kWhiteColor),
-              headlineSmall: TextStyle(color: kWhiteColor),
-              titleLarge: TextStyle(color: kWhiteColor),
-              titleMedium: TextStyle(color: kWhiteColor),
-              titleSmall: TextStyle(color: kWhiteColor),
-              bodyLarge: TextStyle(color: kWhiteColor),
-              bodyMedium: TextStyle(color: kWhiteColor),
-              bodySmall: TextStyle(color: kWhiteColor),
-              labelLarge: TextStyle(color: kWhiteColor),
-              labelMedium: TextStyle(color: kWhiteColor),
-              labelSmall: TextStyle(color: kWhiteColor)
-            ),
-            iconTheme: IconThemeData(
-                color: kWhiteColor
-            )
-        ),
-        builder: (context, child) {
-          return Stack(
-              children: [
-                child!,
-                BlocBuilder<LoadingViewBloc, LoadingViewState>(
-                    buildWhen: (previous, current) => previous != current,
-                    builder: (context, loadingViewState) {
-                      return loadingViewState.loadingType != LoadingType.none
-                          ? LoadingViewWidget(title: loadingViewState.title) : SizedBox.shrink();
-                    })
-              ]
-          );
-        },
-        home: SplashScreen()
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: MaterialApp(
+          navigatorKey: _materialAppKey,
+          // navigatorObservers: [AppRouteObserver()],
+          title: 'PixeLift',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+              scaffoldBackgroundColor: kBlack2Color,
+              textTheme: TextTheme(
+                displayLarge: TextStyle(color: kWhiteColor),
+                displayMedium: TextStyle(color: kWhiteColor),
+                displaySmall: TextStyle(color: kWhiteColor),
+                headlineLarge: TextStyle(color: kWhiteColor),
+                headlineMedium: TextStyle(color: kWhiteColor),
+                headlineSmall: TextStyle(color: kWhiteColor),
+                titleLarge: TextStyle(color: kWhiteColor),
+                titleMedium: TextStyle(color: kWhiteColor),
+                titleSmall: TextStyle(color: kWhiteColor),
+                bodyLarge: TextStyle(color: kWhiteColor),
+                bodyMedium: TextStyle(color: kWhiteColor),
+                bodySmall: TextStyle(color: kWhiteColor),
+                labelLarge: TextStyle(color: kWhiteColor),
+                labelMedium: TextStyle(color: kWhiteColor),
+                labelSmall: TextStyle(color: kWhiteColor)
+              ),
+              iconTheme: IconThemeData(
+                  color: kWhiteColor
+              )
+          ),
+          builder: (context, child) {
+            return Stack(
+                children: [
+                  child!,
+                  BlocBuilder<LoadingViewBloc, LoadingViewState>(
+                      buildWhen: (previous, current) => previous != current,
+                      builder: (context, loadingViewState) {
+                        return (loadingViewState.loadingType != LoadingType.none)
+                            ? LoadingViewWidget(title: loadingViewState.title) : SizedBox.shrink();
+                      })
+                ]
+            );
+          },
+          home: SplashScreen()
+      ),
     );
   }
 }

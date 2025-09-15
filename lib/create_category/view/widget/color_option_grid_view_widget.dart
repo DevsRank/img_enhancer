@@ -1,9 +1,11 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_enhancer_app/create_category/view/widget/img_widget.dart';
 import 'package:image_enhancer_app/splash/view/widget/text_widget.dart';
 import 'package:image_enhancer_app/utils/constant/color.dart';
 import 'package:image_enhancer_app/utils/constant/padding.dart';
+import 'package:image_enhancer_app/utils/enum/img_type.dart';
 import 'package:image_enhancer_app/utils/extension/common_extension.dart';
 import 'package:image_enhancer_app/utils/extension/navigator_extension.dart';
 import 'package:image_enhancer_app/utils/extension/widget_extension.dart';
@@ -55,10 +57,7 @@ class ColorOptionGridViewWidget extends StatelessWidget {
                             margin: kZeroEdgeInsets,
                             color: kWhiteColor,
                             shape: RoundedRectangleBorder(
-                                borderRadius: context.width(14.0).borderRadius,
-                                side: index != _value
-                                    ? BorderSide.none
-                                    : BorderSide(color: kBlueColor, width: context.width(1.2))
+                                borderRadius: context.width(14.0).borderRadius
                             ),
                             child: Material(
                               color: kTransparentColor,
@@ -74,16 +73,31 @@ class ColorOptionGridViewWidget extends StatelessWidget {
                                 onTap: () async {
                                   _valueNotifier.value = index;
                                   await 100.millisecond.wait();
-                                  context.pop();
+                                  // context.pop();
                                   },
-                                child: Container(
-                                  width: double.maxFinite,
-                                  height: double.maxFinite,
-                                  decoration: BoxDecoration(
-                                    color: data[index]["color"],
-                                    borderRadius: context.width(14.0).borderRadius
-                                  )
-                                )
+                                child: AnimatedContainer(
+                                    duration: 100.millisecond,
+                                    decoration: BoxDecoration(
+                                        color: kWhiteColor,
+                                        gradient: kBlueGradient,
+                                        borderRadius: context.width(14.0).borderRadius,
+                                        border: index != _value
+                                            ? Border.all(color: kTransparentColor, width: .0)
+                                            : Border.all(
+                                            color: kTransparentColor,
+                                            width: context.width(1.2))
+                                    ),
+                                    // child: (index != 0 && index != 1) ? Container(
+                                    child: Container(
+                                      width: double.maxFinite,
+                                      height: double.maxFinite,
+                                      decoration: BoxDecoration(
+                                          color: data[index]["color"],
+                                          borderRadius: context.width(14.0).borderRadius
+                                      ),
+                                    // ) : ImgWidget(imgType: ImgType.asset, img: data[index]["img"] ?? "", borderRadius: context.width(14.0).borderRadius)
+                                    )
+                                ),
                               )
                             )
                           );

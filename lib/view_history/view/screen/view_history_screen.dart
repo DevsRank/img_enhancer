@@ -38,19 +38,15 @@ class _ViewHistoryScreenState extends State<ViewHistoryScreen> {
     try {
       if(context.isActionRunning(loadingState: LoadingState.explore_save)) {
         return;
-      } else if (await PermissionType.STORAGE.requestStoragePermission()) {
+      } else if (await PermissionType.storage.requestStoragePermission()) {
+
         context.setBtnLoading(loadingState: LoadingState.explore_save);
 
-        final byteData = await rootBundle.load(widget.categoryModel.img);
-        final tempDir = await pp.getTemporaryDirectory();
-        final tempFile = File('${tempDir.path}/${DateTime.now().microsecondsSinceEpoch}${path.extension(widget.categoryModel.img)}');
-        if(!await tempFile.exists()) await tempFile.writeAsBytes(byteData.buffer.asUint8List());
-
-        if (await tempFile.exists()) {
+        if (await File(widget.categoryModel.img).exists()) {
           final result = await ImageGallerySaverPlus.saveImage(
-              Uint8List.fromList(await tempFile.readAsBytes()),
-              quality: 92,
-              name: DateTime.now().millisecondsSinceEpoch.toString()
+              await File(widget.categoryModel.img).readAsBytes(),
+              quality: 100,
+              name: DateTime.now().microsecondsSinceEpoch.toString()
           );
           if(result != null && result["isSuccess"]) context.showSnackBar(msg: "Saved successfully");
         } else {
@@ -75,18 +71,17 @@ class _ViewHistoryScreenState extends State<ViewHistoryScreen> {
     try {
       context.setBtnLoading(loadingState: LoadingState.explore_share);
 
-      final byteData = await rootBundle.load(widget.categoryModel.img);
-      final tempDir = await pp.getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/${DateTime.now().microsecondsSinceEpoch}${path.extension(widget.categoryModel.img)}');
-      if(!await tempFile.exists()) await tempFile.writeAsBytes(byteData.buffer.asUint8List());
+      if (await File(widget.categoryModel.img).exists()) {
+        final response = await SharePlus.instance.share(ShareParams(
+                title: "PixeLift",
+                files: [XFile(widget.categoryModel.img)]
+              ));
 
-      final response = await SharePlus.instance.share(ShareParams(
-        title: "PixeLift",
-        files: [XFile(tempFile.path)]
-      ));
-
-      if(response.status == ShareResultStatus.unavailable) {
-        context.showSnackBar(msg: "Share unavailable");
+        if(response.status == ShareResultStatus.unavailable) {
+          context.showSnackBar(msg: "Share unavailable");
+        }
+      } else {
+        throw "File not found";
       }
 
     } catch (e) {
@@ -119,11 +114,11 @@ class _ViewHistoryScreenState extends State<ViewHistoryScreen> {
               child: Hero(
                 tag: widget.tag,
                 child: ImgWidget(
-                    imgType: ImgType.asset,
+                    imgType: ImgType.file,
                     img: widget.categoryModel.img,
                     width: double.maxFinite,
                     height: context.width(320.0),
-                    fit: BoxFit.cover,
+                    isInTerActive: true,
                     borderRadius: context.width(12.0).borderRadius
                 ),
               )
@@ -134,6 +129,7 @@ class _ViewHistoryScreenState extends State<ViewHistoryScreen> {
           // _buildAttributeTextWidget(title: "Style", subTitle: widget.categoryModel.style ?? ""),
           // context.height(6.0).hMargin,
           // _buildAttributeTextWidget(title: "Color", subTitle: widget.categoryModel.color ?? ""),
+          context.width(111.0).hMargin,
         ],
       ).padding(padding: context.width(16.0).horizontalEdgeInsets),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

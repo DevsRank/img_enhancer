@@ -30,7 +30,6 @@ class MagicRemoverHistoryState extends Equatable {
   MagicRemoverHistoryState copyWith({
     bool? isLoading,
     bool? success,
-    bool? isPaginating,
     String? msg,
     bool? hasMore,
     int? page,
@@ -65,12 +64,12 @@ class MagicRemoverHistoryState extends Equatable {
 class MagicRemoverHistoryBloc extends Cubit<MagicRemoverHistoryState> {
   MagicRemoverHistoryBloc() : super(MagicRemoverHistoryState());
 
-  Future<void> loadInitialHistory() async {
+  Future<void> loadInitialHistory({int limit = 10}) async {
     try {
-      emit(state.copyWith(isLoading: true, page: 0));
+      emit(state.copyWith(isLoading: true, page: 0, limit: limit));
 
       final data = await SqflDB.instance.getTableData(
-        tableName: TableName.img_utils,
+        tableName: TableName.magic_remover,
         limit: state.limit,
         offset: 0,
       );
@@ -91,19 +90,19 @@ class MagicRemoverHistoryBloc extends Cubit<MagicRemoverHistoryState> {
     }
   }
 
-  Future<void> loadMoreHistory() async {
+  Future<void> loadMoreHistory({int limit = 10}) async {
     try {
 
       if (state.isLoading || !state.hasMore) return;
 
-      emit(state.copyWith(isPaginating: true));
+      emit(state.copyWith(isLoading: true, limit: limit));
 
       final nextPage = state.page + 1;
       final offset = nextPage * state.limit;
 
       final future = await Future.wait([
         SqflDB.instance.getTableData(
-          tableName: TableName.img_utils,
+          tableName: TableName.magic_remover,
           limit: state.limit,
           offset: offset,
         ),
@@ -114,7 +113,7 @@ class MagicRemoverHistoryBloc extends Cubit<MagicRemoverHistoryState> {
 
 
       emit(state.copyWith(
-        isPaginating: false,
+        isLoading: false,
         page: nextPage,
         dataList: [...state.dataList, ...data],
         hasMore: data.length == state.limit,
@@ -122,7 +121,7 @@ class MagicRemoverHistoryBloc extends Cubit<MagicRemoverHistoryState> {
     } catch (e) {
       e.printResponse(title: "load more history exception");
       emit(state.copyWith(
-        isPaginating: false,
+        isLoading: false,
         msg: e.toString(),
       ));
     }
@@ -134,8 +133,9 @@ class MagicRemoverHistoryBloc extends Cubit<MagicRemoverHistoryState> {
       final historyList = List<Map<String, dynamic>>.from(state.dataList);
 
       final future = await Future.wait([
-        SqflDB.instance.deleteData(tableName: TableName.img_utils, id: historyList[index]["id"] ?? ""),
-        if(await File(historyList[index]["video"] ?? "").exists()) File(historyList[index]["video"] ?? "").delete(recursive: true),
+        SqflDB.instance.deleteData(tableName: TableName.magic_remover, id: historyList[index]["id"] ?? ""),
+        if(await File(historyList[index]["img"] ?? "").exists()) File(historyList[index]["img"] ?? "").delete(recursive: true),
+        if(await File(historyList[index]["provide_img"] ?? "").exists()) File(historyList[index]["provide_img"] ?? "").delete(recursive: true),
         3.second.wait()
       ]);
 

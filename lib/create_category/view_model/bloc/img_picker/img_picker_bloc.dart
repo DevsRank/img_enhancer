@@ -55,9 +55,9 @@ class ImgPickerBloc extends Cubit<ImgPickerState> {
       }
 
       final dir = await pp.getTemporaryDirectory();
-      final targetPath = '${dir.path}/${DateTime.now().microsecondsSinceEpoch}${path.extension(originalFile.path)}';
+      final targetPath = '${dir.path}/${DateTime.now().microsecondsSinceEpoch}.jpg';
 
-      // Compress & resize
+// Compress & resize
       final compressedFile = await FlutterImageCompress.compressAndGetFile(
         originalFile.absolute.path,
         targetPath,
@@ -65,6 +65,7 @@ class ImgPickerBloc extends Cubit<ImgPickerState> {
         minWidth: width,
         minHeight: height,
       );
+
 
       if (compressedFile == null) {
         emit(state.copyWith(loading: false));

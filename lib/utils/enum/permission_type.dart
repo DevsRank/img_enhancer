@@ -1,3 +1,3 @@
 enum PermissionType {
-  STORAGE
+  storage
 }

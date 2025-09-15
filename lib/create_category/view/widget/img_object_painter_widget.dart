@@ -42,7 +42,7 @@ class ImgObjectPainterWidget extends StatelessWidget {
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: ImgWidget(imgType: imgType, img: img, borderRadius: context.width(16.0).borderRadius),
+                  child: ImgWidget(imgType: imgType, img: img, borderRadius: context.width(16.0).borderRadius, isInTerActive: true),
                 ),
                 Positioned.fill(
                   child: ValueListenableBuilder<List<StrokeModel>>(

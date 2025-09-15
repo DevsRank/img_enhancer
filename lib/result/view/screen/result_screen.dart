@@ -60,7 +60,7 @@ class _ResultScreenState extends State<ResultScreen> {
       }
 
       // Extract filename from the image URL
-      final fileName = DateTime.now().microsecondsSinceEpoch.toString()+path.extension(widget.categoryModel.img);
+      final fileName = "${DateTime.now().microsecondsSinceEpoch}.png";
 
       // Full file path in hidden folder
       final filePath = '${hiddenFolder.path}/$fileName';
@@ -71,6 +71,8 @@ class _ResultScreenState extends State<ResultScreen> {
       // await file.writeAsBytes(bytes);
 
       await 1.second.wait();
+
+      widget.categoryModel.img.printResponse(title: "img url");
 
       // Download and save the image
       final response = await Dio().download(
@@ -90,21 +92,27 @@ class _ResultScreenState extends State<ResultScreen> {
 
       if (await File(filePath).exists()) {
 
-        await File(widget.categoryModel.provideImg).copy(hiddenFolder.path);
+        await File(widget.categoryModel.provideImg).copy(path.join(hiddenFolder.path, DateTime.now().microsecondsSinceEpoch.toString()+path.extension(widget.categoryModel.provideImg)));
 
         img = filePath;
 
-        // Save path to local Hive DB
-        await SqflDB.instance.insertData(
-            tableName: widget.categoryType.tableName(),
-            dbModel: DbModel(
-              img: filePath,
-              provideImg: widget.categoryModel.provideImg,
-              prompt: widget.categoryModel.prompt,
-              firstAttributeIndex: widget.categoryModel.firstOptionIndex,
-              createAt: DateTime.now()
-            )
+        final dbModel = DbModel(
+            img: filePath,
+            provideImg: widget.categoryModel.provideImg,
+            prompt: widget.categoryModel.prompt,
+            firstAttributeIndex: widget.categoryModel.firstOptionIndex,
+            createAt: DateTime.now()
         );
+
+        // Save path to local Hive DB
+        final dbResponse = await SqflDB.instance.insertData(
+            tableName: widget.categoryType.tableName(),
+            dbModel: dbModel
+        );
+
+        if(dbResponse) {
+          context.setDbModelIndex(categoryType: widget.categoryType, dbModel: dbModel);
+        }
         return (success: true, msg: "Image saved successfully", img: filePath);
       } else {
         return (success: false, msg: "File was not saved", img: "");
@@ -124,7 +132,7 @@ class _ResultScreenState extends State<ResultScreen> {
     try {
       if (context.isActionRunning(loadingState: LoadingState.result_save)) {
         return;
-      } else if (await PermissionType.STORAGE.requestStoragePermission()) {
+      } else if (await PermissionType.storage.requestStoragePermission()) {
         context.setBtnLoading(loadingState: LoadingState.result_save);
 
         File privateFile = File(img);
@@ -204,7 +212,7 @@ class _ResultScreenState extends State<ResultScreen> {
         } else {
 
           final directory = await pp.getTemporaryDirectory();
-          final file = "${directory.path}/${DateTime.now().microsecondsSinceEpoch}${path.extension(widget.categoryModel.img)}";
+          final file = "${directory.path}/${DateTime.now().microsecondsSinceEpoch}.png";
 
           // Download from network
           final response = await Dio().download(
@@ -302,10 +310,14 @@ class _ResultScreenState extends State<ResultScreen> {
                       before: ImgWidget(
                         imgType: ImgType.network,
                         img: widget.categoryModel.img,
+                          isInTerActive: true,
+                          borderRadius: context.width(16.0).borderRadius
                       ),
                       after: ImgWidget(
                         imgType: ImgType.file,
                         img: widget.categoryModel.provideImg,
+                        isInTerActive: true,
+                          borderRadius: context.width(16.0).borderRadius,
                       ),
                       thumbColor: value != null ? kBlueColor : kTransparentColor,
                       trackWidth: context.width(4.0),
@@ -379,7 +391,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 ),
               ],
             ),
-            context.height(111.0).hMargin
+            context.width(111.0).hMargin,
           ],
         ).padding(padding: context.width(16.0).horizontalEdgeInsets),
       ),
@@ -387,6 +399,7 @@ class _ResultScreenState extends State<ResultScreen> {
       floatingActionButton: Container(
         padding: context.width(16.0).allEdgeInsets,
         decoration: BoxDecoration(
+          color: kBlack2Color,
           border: Border(top: BorderSide(color: kGreyColor, width: .1)),
         ),
         child: Row(

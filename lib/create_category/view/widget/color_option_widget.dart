@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:image_enhancer_app/create_category/view/widget/img_widget.dart';
 import 'package:image_enhancer_app/splash/view/widget/text_widget.dart';
 import 'package:image_enhancer_app/utils/constant/color.dart';
 import 'package:image_enhancer_app/utils/constant/padding.dart';
+import 'package:image_enhancer_app/utils/enum/img_type.dart';
 import 'package:image_enhancer_app/utils/extension/common_extension.dart';
 import 'package:image_enhancer_app/utils/extension/widget_extension.dart';
 
@@ -83,6 +85,7 @@ class ColorOptionWidget extends StatelessWidget {
                                             color: kTransparentColor,
                                             width: context.width(1.2))
                                     ),
+                                    // child: (index != 0 && index != 1) ? Container(
                                     child: Container(
                                       width: double.maxFinite,
                                       height: double.maxFinite,
@@ -90,6 +93,7 @@ class ColorOptionWidget extends StatelessWidget {
                                           color: data[index]["color"],
                                           borderRadius: context.width(14.0).borderRadius
                                       ),
+                                    // ) : ImgWidget(imgType: ImgType.asset, img: data[index]["img"] ?? "", borderRadius: context.width(14.0).borderRadius)
                                     )
                                   ),
                                 ),

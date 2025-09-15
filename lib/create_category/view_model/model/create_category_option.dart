@@ -6,10 +6,19 @@ class CreateCategoryOption {
 
   static List<Map<String, dynamic>> bkg_remover = [
     {
-      "img": kSurpriseMeImgPath,
+      "img": "kSurpriseMeImgPath",
       "title": "Surprise Me",
       "color": kTransparentColor,
-      "sub_color_list": <Map<String, dynamic>>[]
+      "sub_color_list": <Map<String, dynamic>>[
+        // {
+        //   "img": kSurpriseMeImgPath,
+        //   "title": "Surprise Me"
+        // },
+        // {
+        //   "img": kTransparentImgPath,
+        //   "title": "Transparent"
+        // },
+      ]
     },
     {
       "img": "",

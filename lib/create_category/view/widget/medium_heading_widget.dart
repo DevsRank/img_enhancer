@@ -37,7 +37,7 @@ class MediumHeadingWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 2.0.wMargin,
-                TextWidget(text: "See All", color: kBlueColor, fontSize: 12.0, fontWeight: k300FontWeight),
+                TextWidget(text: "See All", color: kWhiteColor, fontSize: 12.0, fontWeight: k300FontWeight, gradient: kBlueGradient),
                 4.0.wMargin,
                 Icon(Icons.arrow_forward_ios_sharp, size: context.width(14.0), color: kWhiteColor).gradient(gradient: kBlueGradient)
               ],

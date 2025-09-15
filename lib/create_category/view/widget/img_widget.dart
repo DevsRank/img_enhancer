@@ -20,7 +20,8 @@ class ImgWidget extends StatefulWidget {
   final BoxFit fit;
   final double? width;
   final double? height;
-  const ImgWidget({super.key, required this.imgType, required this.img, this.color, this.borderRadius = BorderRadius.zero, this.fit = BoxFit.cover, this.width, this.height});
+  final bool isInTerActive;
+  const ImgWidget({super.key, required this.imgType, required this.img, this.color, this.borderRadius = BorderRadius.zero, this.fit = BoxFit.cover, this.width, this.height, this.isInTerActive = false});
 
   @override
   State<ImgWidget> createState() => _ImgWidgetState();
@@ -53,8 +54,11 @@ class _ImgWidgetState extends State<ImgWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildImgWidget().clipRRect(
-      borderRadius: widget.borderRadius
+    return InteractiveViewer(
+      scaleEnabled: widget.isInTerActive,
+      child: _buildImgWidget()
+    ).clipRRect(
+        borderRadius: widget.borderRadius
     );
   }
 

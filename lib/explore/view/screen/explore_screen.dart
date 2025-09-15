@@ -21,6 +21,7 @@ import 'package:image_enhancer_app/utils/extension/snackbar_extension.dart';
 import 'package:image_enhancer_app/utils/extension/widget_extension.dart';
 import 'package:image_enhancer_app/utils/typedef/typedef.dart';
 import 'package:image_enhancer_app/view_explore/view/screen/view_explore_screen.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart' as pp;
 import 'package:path/path.dart' as path;
@@ -34,17 +35,19 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> with AutomaticKeepAliveClientMixin{
 
   final ValueNotifier<int> _categoryNotifier = ValueNotifier(0);
-  final _exploreList = <List<Map<String, dynamic>>>[[...ExploreOption.img_utils, ...ExploreOption.magic_remover, ...ExploreOption.fun_preset], ExploreOption.img_utils, ExploreOption.magic_remover, ExploreOption.fun_preset];
+  final _exploreList = <List<Map<String, dynamic>>>[
+    [...ExploreOption.img_utils, ...ExploreOption.magic_remover, ...ExploreOption.fun_preset],
+    ExploreOption.img_utils, ExploreOption.magic_remover, ExploreOption.fun_preset];
 
   void _shareBtnFunction(int index, ValueNotifier<LoadingBtnRecord> btnNotifier) async {
     try {
       btnNotifier.value = (isLoading: true, progress: null);
 
-      final url = _exploreList[_categoryNotifier.value][index]["img"]?.toString() ?? "";
+      final asset = _exploreList[_categoryNotifier.value][index]["img"]?.toString() ?? "";
 
-      final byteData = await rootBundle.load(url);
+      final byteData = await rootBundle.load(asset);
       final tempDir = await pp.getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/${url.split('/').last}');
+      final tempFile = File('${tempDir.path}/${DateTime.now().microsecondsSinceEpoch}${path.extension(asset)}');
       if(!await tempFile.exists()) await tempFile.writeAsBytes(byteData.buffer.asUint8List());
 
       if(await tempFile.exists()) {
@@ -77,31 +80,30 @@ class _ExploreScreenState extends State<ExploreScreen> with AutomaticKeepAliveCl
 
       btnNotifier.value = (isLoading: true, progress: null);
 
-      if(await PermissionType.STORAGE.requestStoragePermission()) {
-        final url = _exploreList[_categoryNotifier.value][index]["img"]?.toString() ?? "";
+      if(await PermissionType.storage.requestStoragePermission()) {
 
-        final byteData = await rootBundle.load(url);
-        final tempDir = await pp.getTemporaryDirectory();
-        final tempFile = File('${tempDir.path}/${url.split('/').last}');
-        if(!await tempFile.exists()) await tempFile.writeAsBytes(byteData.buffer.asUint8List());
+        final asset = _exploreList[_categoryNotifier.value][index]["img"]?.toString() ?? "";
 
-        if(url.isNotEmpty) {
+        asset.printResponse(title: "title");
 
-            if(await tempFile.exists()) {
+        final byteData = await rootBundle.load(asset);
+        // final tempDir = await pp.getTemporaryDirectory();
+        // final tempFile = File('${tempDir.path}/${url.split('/').last}');
+        // if(!await tempFile.exists()) await tempFile.writeAsBytes(byteData.buffer.asUint8List());
 
-              final response = await GallerySaver.saveVideo(tempFile.path, albumName: "AI Video Generator");
+        if(asset.isNotEmpty) {
 
-              if(response ?? false) {
-                context.showSnackBar(msg: "Video saved successfully!");
+              final response = await ImageGallerySaverPlus.saveImage(
+                  byteData.buffer.asUint8List(),
+                  quality: 100,
+                  name: DateTime.now().microsecondsSinceEpoch.toString()
+              );
+
+              if(response != null && response["isSuccess"]) {
+                context.showSnackBar(msg: "Image saved successfully!");
               } else {
-                context.showSnackBar(msg: "Video saved unsuccessfully!");
+                context.showSnackBar(msg: "Image saved unsuccessfully!");
               }
-
-            } else {
-              context.showSnackBar(msg: "File not found or lost");
-            }
-
-
 
         } else {
           context.showSnackBar(msg: "Something went wrong");
@@ -111,7 +113,7 @@ class _ExploreScreenState extends State<ExploreScreen> with AutomaticKeepAliveCl
       }
 
     } catch (e) {
-      e.printResponse(title: "download explore video exception");
+      e.printResponse(title: "download explore img exception");
     } finally {
       btnNotifier.value = (isLoading: false, progress: null);
     }

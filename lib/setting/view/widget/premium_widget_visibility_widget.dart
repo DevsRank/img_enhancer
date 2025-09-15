@@ -12,7 +12,7 @@ class PremiumWidgetVisibilityWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<InAppPurchaseSubscriptionBloc, InAppPurchaseSubscriptionState>(
         builder: (context, inAppPurchaseSubscriptionState) {
-          return inAppPurchaseSubscriptionState.subscriptionStatus != InAppPurchaseSubscriptionStatus.PREMIUM_SUBSCRIPTION && inAppPurchaseSubscriptionState.subscriptionStatus != InAppPurchaseSubscriptionStatus.DIALY_SUBSCRIPTION_USAGE_LIMIT_EXCEEDED
+          return inAppPurchaseSubscriptionState.subscriptionStatus != InAppPurchaseSubscriptionStatus.premium_subscription && inAppPurchaseSubscriptionState.subscriptionStatus != InAppPurchaseSubscriptionStatus.daily_subscription_usage_limit_exceeded
               ? child : SizedBox.shrink();
           });
   }

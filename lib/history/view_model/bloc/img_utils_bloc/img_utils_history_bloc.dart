@@ -64,9 +64,9 @@ class ImgUtilsHistoryState extends Equatable {
 class ImgUtilsHistoryBloc extends Cubit<ImgUtilsHistoryState> {
   ImgUtilsHistoryBloc() : super(ImgUtilsHistoryState());
 
-  Future<void> loadInitialHistory() async {
+  Future<void> loadInitialHistory({int limit = 10}) async {
     try {
-      emit(state.copyWith(isLoading: true, page: 0));
+      emit(state.copyWith(isLoading: true, page: 0, limit: limit));
 
       final data = await SqflDB.instance.getTableData(
         tableName: TableName.img_utils,
@@ -90,12 +90,12 @@ class ImgUtilsHistoryBloc extends Cubit<ImgUtilsHistoryState> {
     }
   }
 
-  Future<void> loadMoreHistory() async {
+  Future<void> loadMoreHistory({int limit = 10}) async {
     try {
 
       if (state.isLoading || !state.hasMore) return;
 
-      emit(state.copyWith(isLoading: true));
+      emit(state.copyWith(isLoading: true, limit: limit));
 
       final nextPage = state.page + 1;
       final offset = nextPage * state.limit;
@@ -134,7 +134,8 @@ class ImgUtilsHistoryBloc extends Cubit<ImgUtilsHistoryState> {
 
       final future = await Future.wait([
         SqflDB.instance.deleteData(tableName: TableName.img_utils, id: historyList[index]["id"] ?? ""),
-        if(await File(historyList[index]["video"] ?? "").exists()) File(historyList[index]["video"] ?? "").delete(recursive: true),
+        if(await File(historyList[index]["img"] ?? "").exists()) File(historyList[index]["img"] ?? "").delete(recursive: true),
+        if(await File(historyList[index]["provide_img"] ?? "").exists()) File(historyList[index]["provide_img"] ?? "").delete(recursive: true),
         3.second.wait()
       ]);
 

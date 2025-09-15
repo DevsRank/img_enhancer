@@ -7,7 +7,7 @@ import 'package:image_enhancer_app/utils/extension/common_extension.dart';
 
 class PopUpMenuItemWidget {
 
-  static PopupMenuItem<int> build({required BuildContext context, required int value, required String title, required IconData icn, bool displayDivider = false}) {
+  static PopupMenuItem<int> build({required BuildContext context, required int value, required String title, required IconData icn, Color color = kWhiteColor, bool displayDivider = false}) {
     return PopupMenuItem<int>(
       height: context.width(26.0),
       padding: kZeroEdgeInsets,
@@ -23,10 +23,11 @@ class PopUpMenuItemWidget {
                 width: context.width(24.0),
                 height: context.width(24.0),
                 alignment: Alignment.center,
-                child: Icon(icn, color: kWhiteColor, size: context.width(22.0))
+                child: Icon(icn, color: color, size: context.width(22.0))
             ),
             title: TextWidget(
-                text: title
+                text: title,
+              color: color
             ),
           ),
          if(displayDivider) Divider(

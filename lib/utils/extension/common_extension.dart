@@ -6,9 +6,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_enhancer_app/config/sqfl/model/db_model.dart';
 import 'package:image_enhancer_app/create_category/view_model/bloc/loading_btn/loading_btn_bloc.dart';
 import 'package:image_enhancer_app/create_category/view_model/bloc/loading_view/loading_view_bloc.dart';
 import 'package:image_enhancer_app/create_category/view_model/model/create_category_option.dart';
+import 'package:image_enhancer_app/history/view_model/bloc/fun_preset_bloc/fun_preset_history_bloc.dart';
+import 'package:image_enhancer_app/history/view_model/bloc/img_utils_bloc/img_utils_history_bloc.dart';
+import 'package:image_enhancer_app/history/view_model/bloc/magic_remover_bloc/magic_remover_history_bloc.dart';
 import 'package:image_enhancer_app/sub_category/view_model/model/sub_category_option.dart';
 import 'package:image_enhancer_app/utils/enum/category_type.dart';
 import 'package:image_enhancer_app/utils/enum/loading_state.dart';
@@ -112,6 +116,43 @@ extension SubCategoryTypeExtension on SubCategoryType {
         return CategoryType.none;
     }
   }
+
+  String getPrompt(String prompt, firstAttributeIndex) {
+
+    switch (this) {
+      case SubCategoryType.photo_enhancer:
+        return "Enhance the photo quality with better details, sharpness, and clarity.";
+      case SubCategoryType.move_camera:
+        return "Move the camera to reveal new aspects of a scene";
+      case SubCategoryType.relight:
+        return "Relight uploaded photo";
+      case SubCategoryType.product_photo:
+        return "Turn you photos into professional product photo.";
+      case SubCategoryType.zoom:
+        return "Zoom on a $prompt in uploaded photo."; // TODO prompt
+      case SubCategoryType.colorize:
+        return "Colorize uploaded photo.";
+      case SubCategoryType.bkg_remover:
+        return "Remove the background and keep only the main subject. Make sure add the background color will be ${option().firstAttributeList.isNotEmpty ? option().firstAttributeList[firstAttributeIndex < 0 ? 0 : firstAttributeIndex]["title"] ?? "": ""}"; // TODO color
+      case SubCategoryType.remove_object:
+        return "Remove $prompt from uploaded photo."; // TODO prompt
+      case SubCategoryType.remove_text:
+        return "Remove text from uploaded photo";
+      case SubCategoryType.cartoonify:
+        return "Turn your photos into cartoons.";
+      case SubCategoryType.movie_poster:
+        return "Turn your photos into $prompt movie poster."; // TODO prompt
+      case SubCategoryType.hair_cut:
+        return "Change the hair cut of the subject.";
+      case SubCategoryType.turn_into_avatar:
+        return "Turn the person into a digital avatar version of themselves. Make sure the the style must be ${option().firstAttributeList.isNotEmpty ? option().firstAttributeList[firstAttributeIndex < 0 ? 0 : firstAttributeIndex]["title"] ?? "": ""}"; // TODO style
+      case SubCategoryType.body_builder:
+        return "Turn uploaded photo into body builders.";
+      default:
+        return "Edit the photo as requested.";
+    }
+
+  }
 }
 
 extension CategoryTypeExtension on CategoryType {
@@ -146,7 +187,7 @@ extension CategoryTypeExtension on CategoryType {
 extension PermissionHandlerExtension on PermissionType {
   Future<bool> requestStoragePermission() async {
     switch(this) {
-      case PermissionType.STORAGE:
+      case PermissionType.storage:
         if (Platform.isAndroid) {
           int sdkInt = int.tryParse(RegExp(r'\d+').firstMatch(Platform.operatingSystemVersion)?.group(0) ?? '0') ?? 0;
 
@@ -397,6 +438,22 @@ extension LoadingBtnExtension on BuildContext {
       "unfocused success".printResponse(title: "Focus scope");
     }
     read<BtnLoadingBloc>().stopLoading(loadingState: loadingState);
+  }
+
+  void setDbModelIndex({required CategoryType categoryType, required DbModel dbModel}) {
+    switch(categoryType) {
+      case CategoryType.img_utils:
+        read<ImgUtilsHistoryBloc>().addIndexValue(dbModel: dbModel);
+        break;
+      case CategoryType.magic_remover:
+        read<MagicRemoverHistoryBloc>().addIndexValue(dbModel: dbModel);
+        break;
+      case CategoryType.fun_preset:
+        read<FunPresetHistoryBloc>().addIndexValue(dbModel: dbModel);
+        break;
+      default:
+
+    }
   }
 }
 

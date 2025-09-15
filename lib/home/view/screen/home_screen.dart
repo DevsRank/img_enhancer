@@ -15,25 +15,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMixin {
-  void _initFunction() {
-
-  }
-
-  void _disposeFunction() {
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    _disposeFunction();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _initFunction();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                 onPressed: () => context.push(widget: SubCategoryScreen(categoryType: CategoryType.img_utils)),
               ),
               context.height(16.0).hMargin,
-              HomeCategoryCardWidget(img: kHomeCategoryMagicRemoverImgPath, title: "magic Remover", subTitle: "Remove distractions with a single touch",
+              HomeCategoryCardWidget(img: kHomeCategoryMagicRemoverImgPath, title: "Magic Remover", subTitle: "Remove distractions with a single touch",
                   onPressed: () => context.push(widget: SubCategoryScreen(categoryType: CategoryType.magic_remover))),
               context.height(16.0).hMargin,
               HomeCategoryCardWidget(img: kHomeCategoryFunPresetImgPath, title: "Fun Presets", subTitle: "Instantly restyle your photos with flair",

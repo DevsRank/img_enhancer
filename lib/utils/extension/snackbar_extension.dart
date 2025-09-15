@@ -13,7 +13,7 @@ import 'package:image_enhancer_app/utils/extension/common_extension.dart';
 import 'package:image_enhancer_app/utils/extension/widget_extension.dart';
 
 extension SnackbarGlobalKeyExtension on GlobalKey<NavigatorState> {
-  void showSnackBar({String title = "AI Video", required String msg}) =>
+  void showSnackBar({String title = "PixeLift", required String msg}) =>
       _SnackbarManager().showSnackbar(
         navigatorKey: this,
         title: title,
@@ -22,7 +22,7 @@ extension SnackbarGlobalKeyExtension on GlobalKey<NavigatorState> {
 }
 
 extension SnackbarContextExtension on BuildContext {
-  void showSnackBar({String title = "AI Video", required String msg}) =>
+  void showSnackBar({String title = "PixeLift", required String msg}) =>
       _SnackbarManager().showSnackbar(
         context: this,
         title: title,
