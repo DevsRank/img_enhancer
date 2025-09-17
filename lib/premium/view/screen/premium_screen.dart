@@ -48,7 +48,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   void _privacyPolicyBtnFunction() {
-    _urlLauncherFunction(url: "https://www.termsfeed.com/live/7aefa46c-0265-4369-8980-4fa9b7a90e93");
+    _urlLauncherFunction(url: "https://devs-privacy.vercel.app/AI-Photo-Enhancer");
   }
 
   void _urlLauncherFunction({required String url}) async {
